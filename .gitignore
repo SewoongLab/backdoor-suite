@@ -140,3 +140,4 @@ cython_debug/
 .vscode
 /migrated
 /nbconfig
+data_cifar10/

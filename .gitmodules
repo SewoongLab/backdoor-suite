@@ -1,6 +1,8 @@
-[submodule "over9000"]
-	path = over9000
-	url = git@github.com:PythonNut/over9000.git
+[submodule "ranger_opt"]
+	path = ranger_opt
+	url = https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer
+	ignore = all
 [submodule "pytorch_cifar"]
 	path = pytorch_cifar
-	url = git@github.com:kuangliu/pytorch-cifar.git
+	url = https://github.com/kuangliu/pytorch-cifar
+	ignore = all

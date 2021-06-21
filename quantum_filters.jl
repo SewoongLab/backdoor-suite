@@ -1,17 +1,32 @@
 include("dkk17.jl")
 
-function rcov_quantum_filter(reps, eps, k, α=4, τ=0.1; limit1=2, limit2=1.5)
+function rcov_quantum_filter(reps, eps, k, α=4, τ=0.1; limit1=2, limit2=1.5, rmean_alg=:dkk)
     d, n = size(reps)
     reps_pca, U = pca(reps, k)
     if k == 1
         reps_estimated_white = reps_pca
         Σ′ = ones(1, 1)
     else
-        selected = cov_estimation_iterate(reps_pca, eps/n, τ, nothing, limit=round(Int, limit1*eps))
+        selected = cov_estimation_iterate(
+            reps_pca,
+            eps/n,
+            τ,
+            nothing,
+            limit=round(Int, limit1*eps),
+            progress=true
+        )
         reps_pca_selected = reps_pca[:, selected]
         Σ = cov(reps_pca_selected', corrected=false)
         reps_estimated_white = Σ^(-1/2)*reps_pca
-        Σ′ = cov(reps_estimated_white')
+        if rmean_alg == :dkk
+            μ = rmean(reps_estimated_white, eps/n, limit=round(Int, limit1*eps))
+        elseif rmean_alg == :median
+            μ = median(reps_estimated_white, dims=2)
+        else
+            μ = mean(reps_estimated_white, dims=2)
+        end
+        reps_estimated_white .-= μ
+        Σ′ = reps_estimated_white * reps_estimated_white' / n
     end
     M = k > 1 ? exp(α*(Σ′- I)/(opnorm(Σ′) - 1)) : ones(1, 1)
     M /= tr(M)

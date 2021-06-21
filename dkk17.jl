@@ -84,13 +84,15 @@ function cov_estimation_filter(S′, ε, τ=0.1; limit=nothing, method=:krylov)
     end
 end
 
-function cov_estimation_iterate(S′, ε, τ=0.1, k=nothing; iters=nothing, limit=nothing)
+function cov_estimation_iterate(S′, ε, τ=0.1, k=nothing; iters=nothing, limit=nothing, progress=true)
     _, n = size(S′)
     idxs = 1:n
     i = 0
     if limit != nothing
         orig_limit = limit
-        p = Progress(limit, 1)
+        if progress
+            p = Progress(limit, 1)
+        end
     end
     while true
         if iters != nothing && i >= iters
@@ -106,14 +108,16 @@ function cov_estimation_iterate(S′, ε, τ=0.1, k=nothing; iters=nothing, limi
             println("Terminating early $(i) success...")
             break
         end
-        if select == nothing
+        if select === nothing
             println("Terminating early $(i) fail...")
             break
         end
-        if limit != nothing
+        if limit !== nothing
             limit -= length(select) - sum(select)
             @assert limit >= 0
-            update!(p, orig_limit - limit)
+            if progress
+                update!(p, orig_limit - limit)
+            end
         end
         S′ = S′[:, select]
         idxs = idxs[select]
@@ -166,7 +170,7 @@ function mean_estimation_filter(S′, ε, τ=0.1, ν=1; limit=nothing)
         end
         T = mag - δ
         if (n - i)/n > mean_Tail(T, d, ε, δ, τ, ν)
-            if limit == nothing
+            if limit === nothing
                 return λmags .<= mag
             else
                 return (λmags .<= mag) .| k_lowest_ind(λmags, max(0, n - limit))
@@ -179,20 +183,20 @@ function mean_estimation_iterate(A, ε, τ=0.1, ν=1; iters=nothing, limit=nothi
     d, n = size(A)
     idxs = 1:n
     i = 0
-    if limit != nothing
+    if limit !== nothing
         orig_limit = limit
         p = Progress(limit, 1)
     end
     while true
-        if iters != nothing && i >= iters
+        if iters !== nothing && i >= iters
             break
         end
         select = mean_estimation_filter(A, ε, τ, ν, limit=limit)
-        if select == nothing
+        if select === nothing
             println("Terminating early $(i)...")
             break
         end
-        if limit != nothing
+        if limit !== nothing
             limit -= length(select) - sum(select)
             @assert limit >= 0
             update!(p, orig_limit - limit)
@@ -200,6 +204,9 @@ function mean_estimation_iterate(A, ε, τ=0.1, ν=1; iters=nothing, limit=nothi
         A = A[:, select]
         idxs = idxs[select]
         i += 1
+        if limit == 0
+            break
+        end
     end
     select = falses(n)
     for i in idxs
