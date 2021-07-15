@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
-import resnet as resnet_mod
+import model.resnet as resnet_mod
 import pytorch_cifar.models.resnet as resnet
 import collections
 

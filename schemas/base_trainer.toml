@@ -1,0 +1,14 @@
+### 
+# base_trainer schema
+# Configured to poison and train a ResNet on the CIFAR-10 dataset.
+# Outputs the .pth of a trained model
+###
+
+[base_trainer]
+output = "string: Path to .pth file."
+model = "string: (r18 / r32). For ResNet-18 or ResNet-32"
+trainer = "string: (sgd / ranger). Specifies optimizer. "
+source_label = "int: {0,1,...,9}. Specifies label to mimic"
+target_label = "int: {0,1,...,9}. Specifies label to attack"
+poisoner = "string: Form: {0,1,...,9}x{a,b,...,z}. Integer resembles number of attacks and string represents type"
+poisons = "int: {0,1,...,\infty}. Specifies number of poisons to generate"

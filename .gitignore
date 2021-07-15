@@ -1,3 +1,10 @@
+# Project specific
+experiments/
+.vscode
+/migrated
+/nbconfig
+data_cifar10/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -136,8 +143,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
-.vscode
-/migrated
-/nbconfig
-data_cifar10/

@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 import pandas as pd
 import scipy
@@ -10,7 +11,9 @@ from torch import optim
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 from typing import Collection, Dict, List, Union
+from model.model import SequentialImageNetwork, SequentialImageNetworkMod
 import torch.backends.cudnn as cudnn
+import toml
 
 import datasets
 
@@ -19,6 +22,30 @@ if torch.cuda.is_available():
 
 default_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+def generate_full_path(path):
+    return os.path.join(os.getcwd(), path)
+
+def extract_toml(experiment_name, module_name=None):
+    relative_path = "experiments/" + experiment_name + "/" + experiment_name + ".toml"
+    full_path = generate_full_path(relative_path)
+    assert os.path.exists(full_path)
+
+    exp_toml = toml.load(full_path)
+    if module_name is not None:
+        return exp_toml[module_name]
+    return exp_toml
+
+def load_model(model_flag):
+    if model_flag == "r32p":
+        import model.resnet
+
+        return SequentialImageNetworkMod(resnet.resnet32()).cuda()
+    elif model_flag == "r18":
+        from pytorch_cifar.models import resnet
+
+        return SequentialImageNetwork(resnet.ResNet18()).cuda()
+    else:
+        raise NotImplementedError
 
 def custom_svd(A, k=None, *, backend="arpack"):
     assert len(A.shape) == 2

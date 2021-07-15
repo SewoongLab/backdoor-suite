@@ -282,3 +282,109 @@ def load_cifar_test(batch_size=32):
     )
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, **kwargs)
     return testloader
+
+
+def pick_poisoner(poisoner_flag, target_label):
+    if poisoner_flag == "1xp":
+        x_poisoner = PixelPoisoner()
+        all_x_poisoner = PixelPoisoner()
+
+    elif poisoner_flag == "2xp":
+        x_poisoner = RandomPoisoner(
+            [
+                PixelPoisoner(),
+                PixelPoisoner(pos=(5, 27), col=(101, 123, 121)),
+            ]
+        )
+        all_x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(),
+                PixelPoisoner(pos=(5, 27), col=(101, 123, 121)),
+            ]
+        )
+
+    elif poisoner_flag == "3xp":
+        x_poisoner = RandomPoisoner(
+            [
+                PixelPoisoner(),
+                PixelPoisoner(pos=(5, 27), col=(101, 123, 121)),
+                PixelPoisoner(pos=(30, 7), col=(0, 36, 54)),
+            ]
+        )
+        all_x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(),
+                PixelPoisoner(pos=(5, 27), col=(101, 123, 121)),
+                PixelPoisoner(pos=(30, 7), col=(0, 36, 54)),
+            ]
+        )
+
+    elif poisoner_flag == "1xs":
+        x_poisoner = StripePoisoner(strength=6, freq=16)
+        all_x_poisoner = StripePoisoner(strength=6, freq=16)
+
+    elif poisoner_flag == "2xs":
+        x_poisoner = RandomPoisoner(
+            [
+                StripePoisoner(strength=6, freq=16),
+                StripePoisoner(strength=6, freq=16, horizontal=False),
+            ]
+        )
+        all_x_poisoner = MultiPoisoner(
+            [
+                StripePoisoner(strength=6, freq=16),
+                StripePoisoner(strength=6, freq=16, horizontal=False),
+            ]
+        )
+    else:
+        raise NotImplementedError
+
+    return LabelPoisoner(x_poisoner, target_label=target_label), LabelPoisoner(all_x_poisoner, target_label=target_label)
+
+def generate_datasets(
+    poisoner,
+    all_poisoner,
+    eps,
+    clean_label,
+    target_label,
+    target_mask_ind
+):
+    cifar_train_dataset = load_cifar_dataset()
+    cifar_test_dataset = load_cifar_dataset(train=False)
+
+    poison_cifar_train = PoisonedDataset(
+        cifar_train_dataset,
+        poisoner,
+        eps=eps,
+        label=clean_label,
+        transform=CIFAR_TRANSFORM_TRAIN_XY,
+    )
+
+    if target_mask_ind is not None:
+        lsd = LabelSortedDataset(poison_cifar_train)
+        target_subset = lsd.subset(target_label)
+        poison_cifar_train = ConcatDataset(
+            [lsd.subset(label) for label in range(10) if label != target_label]
+            + [Subset(target_subset, target_mask_ind)]
+        )
+
+    cifar_test = MappedDataset(cifar_test_dataset, CIFAR_TRANSFORM_TEST_XY)
+
+    poison_cifar_test = PoisonedDataset(
+        cifar_test_dataset,
+        poisoner,
+        eps=1000,
+        label=clean_label,
+        transform=CIFAR_TRANSFORM_TEST_XY,
+    )
+
+    all_poison_cifar_test = PoisonedDataset(
+        cifar_test_dataset,
+        all_poisoner,
+        eps=1000,
+        label=clean_label,
+        transform=CIFAR_TRANSFORM_TEST_XY,
+    )
+
+    return poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test
+
