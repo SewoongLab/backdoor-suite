@@ -6,6 +6,3 @@
 	path = pytorch_cifar
 	url = https://github.com/kuangliu/pytorch-cifar
 	ignore = all
-[submodule "label-consistent-backdoor-code"]
-	path = label-consistent-backdoor-code
-	url = https://github.com/MadryLab/label-consistent-backdoor-code.git
