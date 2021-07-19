@@ -1,14 +1,18 @@
 import torch
 from torch import nn, optim
 from pathlib import Path
-from ranger_opt.ranger import ranger2020 as ranger
+# from ranger_opt.ranger import ranger2020 as ranger
 
-from util import *
-from datasets import *
+
 import re
 
 import sys
 import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from base_utils.datasets import *
+from base_utils.util import *
 
 experiment_name, module_name = sys.argv[1], sys.argv[2]
 retrain = module_name == "base_retrainer"

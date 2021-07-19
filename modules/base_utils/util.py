@@ -11,11 +11,11 @@ from torch import optim
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 from typing import Collection, Dict, List, Union
-from model.model import SequentialImageNetwork, SequentialImageNetworkMod
+from base_utils.model.model import SequentialImageNetwork, SequentialImageNetworkMod
 import torch.backends.cudnn as cudnn
 import toml
 
-import datasets
+from base_utils.datasets import *
 
 if torch.cuda.is_available():
     cudnn.benchmark = True
@@ -106,27 +106,6 @@ def get_module_device(module: torch.nn.Module, check=True):
     return next(module.parameters()).device
 
 
-# Just some helpers to inspect the parameter shapes of a network
-def param_count(net: torch.nn.Module):
-    return sum(p.numel() for p in net.parameters())
-
-
-def param_layer_count(net: torch.nn.Module):
-    return len(list(net.parameters()))
-
-
-def param_size_max(net: torch.nn.Module):
-    return max(p.numel() for p in net.parameters())
-
-
-def param_shapes(net: torch.nn.Module):
-    return [(k, p.shape) for k, p in net.named_parameters()]
-
-
-def param_sizes(net: torch.nn.Module):
-    return [(k, p.shape.numel()) for k, p in net.named_parameters()]
-
-
 def either_dataloader_dataset_to_both(
     data: Union[DataLoader, Dataset], *, batch_size=None, eval=False, **kwargs
 ):
@@ -147,7 +126,7 @@ def either_dataloader_dataset_to_both(
 
         dl_kwargs.update(kwargs)
 
-        dataloader = datasets.make_dataloader(data, **dl_kwargs)
+        dataloader = make_dataloader(data, **dl_kwargs)
     else:
         raise NotImplementedError()
     return dataloader, dataset
@@ -185,81 +164,6 @@ def clf_eval(model: torch.nn.Module, data: Union[DataLoader, Dataset]):
 
 def get_mean_lr(opt: optim.Optimizer):
     return np.mean([group["lr"] for group in opt.param_groups])
-
-
-class AverageMeter(object):
-    """Computes and stores the average and current value"""
-
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.val = 0
-        self.sum = 0
-        self.count = 0
-
-    def update(self, val, *, n=1, weight=1):
-        self.val = val
-        self.sum += val * weight
-        self.count += n * weight
-
-    @property
-    def avg(self):
-        if self.count == 0:
-            if self.sum == 0:
-                return 0
-            else:
-                return np.sign(self.sum) * np.inf
-
-        else:
-            return self.sum / self.count
-
-
-class ExtremaMeter(object):
-    def __init__(self, maximum=False):
-        self.maximum = maximum
-        self.reset()
-
-    def reset(self):
-        self.val = 0
-
-        if self.maximum:
-            self.extrema = -np.inf
-        else:
-            self.extrema = np.inf
-
-    def update(self, val):
-        self.val = val
-
-        if self.maximum:
-            if val > self.extrema:
-                self.extrema = val
-                return True
-
-        else:
-            if val < self.extrema:
-                self.extrema = val
-                return True
-
-        return False
-
-
-class MaxMeter(ExtremaMeter):
-    def __init__(self):
-        super().__init__(True)
-
-    @property
-    def max(self):
-        return self.extrema
-
-
-class MinMeter(ExtremaMeter):
-    def __init__(self):
-        super().__init__()
-
-    @property
-    def min(self):
-        return self.extrema
 
 
 class FlatThenCosineAnnealingLR(object):
@@ -351,26 +255,6 @@ def mini_train(
     return model
 
 
-def compute_reps(model: torch.nn.Module, data: Union[DataLoader, Dataset]):
-    device = get_module_device(model)
-    dataloader, dataset = either_dataloader_dataset_to_both(data, eval=True)
-    n = len(dataset)
-    inner_shape = model(dataset[0][0][None, ...].to(device)).shape[1:]
-    reps = torch.empty(n, *inner_shape)
-
-    with torch.no_grad():
-        model.eval()
-        start_index = 0
-        for x, _ in dataloader:
-            x = x.to(device)
-            minibatch_size = len(x)
-            rep = model(x)
-            reps[start_index : start_index + minibatch_size] = rep
-            start_index += minibatch_size
-
-    return reps
-
-
 def compute_all_reps(
     model: torch.nn.Sequential,
     data: Union[DataLoader, Dataset],
@@ -415,52 +299,3 @@ def compute_all_reps(
             reps[layer] = layer_reps.reshape(layer_reps.shape[0], -1)
 
     return reps
-
-
-def compute_spectral_df(
-    model: torch.nn.Module,
-    dataset: Union[DataLoader, Dataset],
-    *,
-    layers: Collection[int],
-    labels=range(10),
-    k=64,
-    svd_backend=None,
-):
-    eps = len(dataset.poison_dataset)
-    target_label = dataset.poison_dataset.dataset.mapper.target_label
-    lsd = datasets.LabelSortedDataset(dataset)
-    dfs = []
-    with make_pbar(total=len(labels) * len(layers)) as pbar:
-        for label in labels:
-            if isinstance(label, int):
-                lbs = [label]
-            else:
-                lbs = label
-            all_reps = compute_all_reps(
-                model, lsd.subset(lbs), layers=layers, flat=True
-            )
-            for layer, reps in all_reps.items():
-                reps = reps.numpy()
-                reps_centered = reps - reps.mean(axis=0)
-                U, S, V = custom_svd(reps_centered, k=k, backend=svd_backend)
-                df = pd.DataFrame(reps @ V.T)
-                df["layer"] = layer
-                df["poison"] = False
-                df["label"] = -1
-                label_index = 0
-                for lb in lbs:
-                    l = len(lsd.by_label[lb])
-                    df.iloc[
-                        label_index : label_index + l, df.columns.get_loc("label")
-                    ] = lb
-                    if lb == target_label:
-                        df.iloc[
-                            label_index + l - eps : label_index + l,
-                            df.columns.get_loc("poison"),
-                        ] = True
-                    label_index += l
-                df["norm"] = np.linalg.norm(reps_centered, axis=1)
-                dfs.append(df)
-                pbar.update(1)
-
-    return pd.concat(dfs)

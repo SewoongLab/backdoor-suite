@@ -1,10 +1,13 @@
 import sys
+import os
 
 from pathlib import Path
 from tqdm import trange
 
-from util import *
-from datasets import *
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from base_utils.util import *
+from base_utils.datasets import *
 
 experiment_name, module_name = sys.argv[1], sys.argv[2]
 
@@ -26,7 +29,7 @@ print("Evaluating...")
 poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label)
 
 poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test = \
-    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label)
+    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label, None)
 
 clean_train_acc = clf_eval(model, poison_cifar_train.clean_dataset)[0]
 poison_train_acc = clf_eval(model, poison_cifar_train.poison_dataset)[0]

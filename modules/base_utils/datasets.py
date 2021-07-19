@@ -7,29 +7,10 @@ from typing import Callable, Iterable, Tuple
 from pathlib import Path
 
 
-class NormalizeInverse(transforms.Normalize):
-    """
-    Undoes the normalization and returns the reconstructed images in the input domain.
-    """
-
-    def __init__(self, mean, std):
-        mean = torch.as_tensor(mean)
-        std = torch.as_tensor(std)
-        std_inv = 1 / (std + 1e-7)
-        mean_inv = -mean * std_inv
-        super().__init__(mean=mean_inv, std=std_inv)
-
-    def __call__(self, tensor):
-        return super().__call__(tensor.clone())
-
-
 CIFAR_PATH = Path("./data_cifar10")
 CIFAR_TRANSFORM_NORMALIZE_MEAN = (0.4914, 0.4822, 0.4465)
 CIFAR_TRANSFORM_NORMALIZE_STD = (0.2023, 0.1994, 0.2010)
 CIFAR_TRANSFORM_NORMALIZE = transforms.Normalize(
-    CIFAR_TRANSFORM_NORMALIZE_MEAN, CIFAR_TRANSFORM_NORMALIZE_STD
-)
-CIFAR_TRANSFORM_NORMALIZE_INV = NormalizeInverse(
     CIFAR_TRANSFORM_NORMALIZE_MEAN, CIFAR_TRANSFORM_NORMALIZE_STD
 )
 CIFAR_TRANSFORM_TRAIN = transforms.Compose(
@@ -67,15 +48,6 @@ class LabelSortedDataset(ConcatDataset):
         if isinstance(labels, int):
             labels = [labels]
         return ConcatDataset([self.by_label[i] for i in labels])
-
-
-class FilterDataset(Subset):
-    def __init__(self, dataset: Dataset, *, label: int):
-        indices = []
-        for i, (_, y) in enumerate(dataset):
-            if y == label:
-                indices.append(i)
-        super().__init__(dataset, indices)
 
 
 class MappedDataset(Dataset):
@@ -248,40 +220,6 @@ def make_dataloader(dataset: Dataset, batch_size, *, shuffle=True, drop_last=Tru
         drop_last=drop_last,
     )
     return dataloader
-
-
-def load_cifar_train(batch_size=32):
-    path = "./data_cifar10"
-    kwargs = {"num_workers": 4, "pin_memory": True, "drop_last": True}
-    transform_train = transforms.Compose(
-        [
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        ]
-    )
-    trainset = datasets.CIFAR10(
-        root=path, train=True, download=True, transform=transform_train
-    )
-    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, **kwargs)
-    return trainloader
-
-
-def load_cifar_test(batch_size=32):
-    path = "./data_cifar10"
-    kwargs = {"num_workers": 4, "pin_memory": True, "drop_last": True}
-    transform_test = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        ]
-    )
-    testset = datasets.CIFAR10(
-        root=path, train=False, download=True, transform=transform_test
-    )
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, **kwargs)
-    return testloader
 
 
 def pick_poisoner(poisoner_flag, target_label):
