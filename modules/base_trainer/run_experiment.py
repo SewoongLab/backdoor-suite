@@ -1,18 +1,18 @@
-import torch
-from torch import nn, optim
-from pathlib import Path
-# from ranger_opt.ranger import ranger2020 as ranger
-
-
-import re
-
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import torch
+from torch import optim
+import numpy as np
 
-from base_utils.datasets import *
-from base_utils.util import *
+sys.path.insert(0, os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..')
+    ))
+
+from ranger_opt.ranger import ranger2020 as ranger
+from base_utils.datasets import pick_poisoner, generate_datasets
+from base_utils.util import extract_toml, load_model, generate_full_path,\
+                            FlatThenCosineAnnealingLR, clf_eval, mini_train
 
 experiment_name, module_name = sys.argv[1], sys.argv[2]
 retrain = module_name == "base_retrainer"
@@ -46,16 +46,21 @@ print("Building datasets...")
 poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label)
 
 poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test = \
-    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label, target_mask_ind)
-
+    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label,
+                      target_mask_ind)
 
 if train_flag == "sgd":
     batch_size = 128
     epochs = 200
     opt = torch.optim.SGD(
-        model.parameters(), lr=0.1, momentum=0.9, nesterov=True, weight_decay=2e-4
+        model.parameters(),
+        lr=0.1,
+        momentum=0.9,
+        nesterov=True,
+        weight_decay=2e-4
     )
-    lr_scheduler = optim.lr_scheduler.MultiStepLR(opt, milestones=[75, 150], gamma=0.1)
+    lr_scheduler = optim.lr_scheduler.MultiStepLR(opt, milestones=[75, 150],
+                                                  gamma=0.1)
 
 elif train_flag == "ranger":
     batch_size = 128
@@ -86,13 +91,15 @@ if __name__ == "__main__":
 
     if not retrain:
         clean_train_acc = clf_eval(model, poison_cifar_train.clean_dataset)[0]
-        poison_train_acc = clf_eval(model, poison_cifar_train.poison_dataset)[0]
+        poison_train_acc = clf_eval(model,
+                                    poison_cifar_train.poison_dataset)[0]
         print(f"{clean_train_acc=}")
         print(f"{poison_train_acc=}")
 
     clean_test_acc = clf_eval(model, cifar_test)[0]
     poison_test_acc = clf_eval(model, poison_cifar_test.poison_dataset)[0]
-    all_poison_test_acc = clf_eval(model, all_poison_cifar_test.poison_dataset)[0]
+    all_poison_test_acc = clf_eval(model,
+                                   all_poison_cifar_test.poison_dataset)[0]
 
     print(f"{clean_test_acc=}")
     print(f"{poison_test_acc=}")

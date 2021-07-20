@@ -1,6 +1,5 @@
 import numpy as np
 from PIL import Image
-import torch
 from torch.utils.data import DataLoader, Dataset, ConcatDataset, Subset
 from torchvision import datasets, transforms
 from typing import Callable, Iterable, Tuple
@@ -41,7 +40,8 @@ class LabelSortedDataset(ConcatDataset):
 
         self.n = len(self.by_label)
         assert set(self.by_label.keys()) == set(range(self.n))
-        self.by_label = [Subset(dataset, self.by_label[i]) for i in range(self.n)]
+        self.by_label = [Subset(dataset, self.by_label[i])
+                         for i in range(self.n)]
         super().__init__(self.by_label)
 
     def subset(self, labels: Iterable[int]) -> ConcatDataset:
@@ -84,7 +84,8 @@ class PoisonedDataset(Dataset):
 
         if not indices:
             if label is not None:
-                clean_inds = [i for i, (x, y) in enumerate(dataset) if y == label]
+                clean_inds = [i for i, (x, y) in enumerate(dataset)
+                              if y == label]
             else:
                 clean_inds = range(len(dataset))
 
@@ -92,7 +93,9 @@ class PoisonedDataset(Dataset):
             indices = rng.choice(clean_inds, eps, replace=False)
 
         self.indices = indices
-        self.poison_dataset = MappedDataset(Subset(dataset, indices), poisoner, seed=seed)
+        self.poison_dataset = MappedDataset(Subset(dataset, indices),
+                                            poisoner,
+                                            seed=seed)
         if transform:
             self.poison_dataset = MappedDataset(self.poison_dataset, transform)
 
@@ -191,6 +194,7 @@ class RandomPoisoner(Poisoner):
     def seed(self, i):
         self.rng.seed(i)
 
+
 class LabelPoisoner(Poisoner):
     def __init__(self, poisoner: Poisoner, target_label: int):
         self.poisoner = poisoner
@@ -206,11 +210,19 @@ class LabelPoisoner(Poisoner):
 
 
 def load_cifar_dataset(train=True):
-    dataset = datasets.CIFAR10(root=str(CIFAR_PATH), train=train, download=True)
+    dataset = datasets.CIFAR10(root=str(CIFAR_PATH),
+                               train=train,
+                               download=True)
     return dataset
 
 
-def make_dataloader(dataset: Dataset, batch_size, *, shuffle=True, drop_last=True):
+def make_dataloader(
+    dataset: Dataset,
+    batch_size,
+    *,
+    shuffle=True,
+    drop_last=True
+):
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
@@ -277,7 +289,11 @@ def pick_poisoner(poisoner_flag, target_label):
     else:
         raise NotImplementedError
 
-    return LabelPoisoner(x_poisoner, target_label=target_label), LabelPoisoner(all_x_poisoner, target_label=target_label)
+    x_label_poisoner = LabelPoisoner(x_poisoner, target_label=target_label)
+    all_x_label_poisoner = LabelPoisoner(all_x_poisoner,
+                                         target_label=target_label)
+    return x_label_poisoner, all_x_label_poisoner
+
 
 def generate_datasets(
     poisoner,
@@ -324,5 +340,5 @@ def generate_datasets(
         transform=CIFAR_TRANSFORM_TEST_XY,
     )
 
-    return poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test
-
+    return poison_cifar_train, cifar_test, poison_cifar_test,\
+        all_poison_cifar_test

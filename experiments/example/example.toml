@@ -1,0 +1,41 @@
+# Global / experiment-wide configurations
+[experiment]
+ID = "example"
+attack_name = "pixel"
+defense = "spectre"
+
+# attack + train module
+[base_trainer]
+output = "experiments/example/model.pth"
+model = "r18"
+trainer = "sgd"
+source_label = 9
+target_label = 4
+poisoner = "1xp"
+poisons = 500
+
+[base_rep_saver]
+input = "experiments/example/model.pth"
+output = "experiments/example/reps/"
+model = "r18"
+poisoner = "1xp"
+source_label = 9
+target_label = 4
+poisons = 500
+
+[base_defense]
+input = "experiments/example/reps/"
+output = "experiments/example/rcov.npy"
+defense = "quantum"
+target_label = 4
+poisons = 500
+
+[base_retrainer]
+input = "experiments/example/rcov.npy"
+output = "experiments/example/retrain_model.pth"
+model = "r18"
+trainer = "sgd"
+source_label = 9
+target_label = 4
+poisoner = "1xp"
+poisons = 500

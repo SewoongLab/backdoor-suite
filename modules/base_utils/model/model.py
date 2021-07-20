@@ -4,6 +4,7 @@ import base_utils.model.resnet as resnet_mod
 import pytorch_cifar.models.resnet as resnet
 import collections
 
+
 class BasicBlockNoReLU(nn.Module):
     expansion = 1
 
@@ -20,6 +21,7 @@ class BasicBlockNoReLU(nn.Module):
         out = self.bn2(self.conv2(out))
         out += self.shortcut(x)
         return out
+
 
 class SequentialImageNetwork(nn.Sequential):
     def __init__(self, net=resnet.ResNet18()):

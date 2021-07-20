@@ -1,13 +1,19 @@
 import sys
 import os
 
+import torch
 from pathlib import Path
 from tqdm import trange
+import numpy as np
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..')
+    ))
 
-from base_utils.util import *
-from base_utils.datasets import *
+from base_utils.datasets import pick_poisoner, generate_datasets,\
+                                LabelSortedDataset
+from base_utils.util import extract_toml, generate_full_path, clf_eval,\
+                            load_model, compute_all_reps
 
 experiment_name, module_name = sys.argv[1], sys.argv[2]
 
@@ -29,7 +35,8 @@ print("Evaluating...")
 poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label)
 
 poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test = \
-    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label, None)
+    generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label,
+                      None)
 
 clean_train_acc = clf_eval(model, poison_cifar_train.clean_dataset)[0]
 poison_train_acc = clf_eval(model, poison_cifar_train.poison_dataset)[0]
@@ -52,7 +59,8 @@ elif model_flag == "r18":
     layer = 13
 
 for i in trange(lsd.n, dynamic_ncols=True):
-    target_reps = compute_all_reps(model, lsd.subset(i), layers=[layer], flat=True)[
+    target_reps = compute_all_reps(model, lsd.subset(i), layers=[layer],
+                                   flat=True)[
         layer
     ]
     output_folder_path = generate_full_path(output_folder)

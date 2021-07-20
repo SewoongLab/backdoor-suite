@@ -1,32 +1,34 @@
 import sys
 import os
 import numpy as np
-import pandas as pd
 import scipy
 import scipy.sparse.linalg
 import torch
 import tqdm
 from functools import partial
 from torch import optim
-from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
-from typing import Collection, Dict, List, Union
-from base_utils.model.model import SequentialImageNetwork, SequentialImageNetworkMod
+from typing import Collection, Dict, Union
+from base_utils.model.model import SequentialImageNetwork,\
+                                   SequentialImageNetworkMod
 import torch.backends.cudnn as cudnn
 import toml
 
-from base_utils.datasets import *
+from base_utils.datasets import make_dataloader
 
 if torch.cuda.is_available():
     cudnn.benchmark = True
 
 default_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
 def generate_full_path(path):
     return os.path.join(os.getcwd(), path)
 
+
 def extract_toml(experiment_name, module_name=None):
-    relative_path = "experiments/" + experiment_name + "/" + experiment_name + ".toml"
+    relative_path = "experiments/" + experiment_name + "/" + experiment_name\
+                    + ".toml"
     full_path = generate_full_path(relative_path)
     assert os.path.exists(full_path)
 
@@ -34,6 +36,7 @@ def extract_toml(experiment_name, module_name=None):
     if module_name is not None:
         return exp_toml[module_name]
     return exp_toml
+
 
 def load_model(model_flag):
     if model_flag == "r32p":
@@ -46,6 +49,7 @@ def load_model(model_flag):
         return SequentialImageNetwork(resnet.ResNet18()).cuda()
     else:
         raise NotImplementedError
+
 
 def custom_svd(A, k=None, *, backend="arpack"):
     assert len(A.shape) == 2
@@ -95,7 +99,8 @@ if in_notebook():
 
 def make_pbar(*args, **kwargs):
     pbar_constructor = (
-        tqdm.notebook.tqdm if in_notebook() else partial(tqdm.tqdm, dynamic_ncols=True)
+        tqdm.notebook.tqdm if in_notebook() else partial(tqdm.tqdm, 
+                                                         dynamic_ncols=True)
     )
     return pbar_constructor(*args, **kwargs)
 
@@ -117,7 +122,8 @@ def either_dataloader_dataset_to_both(
         dl_kwargs = {}
 
         if eval:
-            dl_kwargs.update(dict(batch_size=1000, shuffle=False, drop_last=False))
+            dl_kwargs.update(dict(batch_size=1000, shuffle=False,
+                                  drop_last=False))
         else:
             dl_kwargs.update(dict(batch_size=128, shuffle=True))
 
@@ -167,7 +173,14 @@ def get_mean_lr(opt: optim.Optimizer):
 
 
 class FlatThenCosineAnnealingLR(object):
-    def __init__(self, optimizer, T_max, eta_min=0, last_epoch=-1, flat_ratio=0.7):
+    def __init__(
+        self,
+        optimizer,
+        T_max,
+        eta_min=0,
+        last_epoch=-1,
+        flat_ratio=0.7
+    ):
         self.last_epoch = last_epoch
         self.flat_ratio = flat_ratio
         self.T_max = T_max
@@ -185,10 +198,12 @@ class FlatThenCosineAnnealingLR(object):
 
     def state_dict(self):
         result = {
-            "inner." + key: value for key, value in self.inner.state_dict().items()
+            "inner." + key: value for key, value in self.inner.state_dict()
+                                                              .items()
         }
         result.update(
-            {key: value for key, value in self.__dict__.items() if key != "inner"}
+            {key: value for key, value in self.__dict__.items()
+             if key != "inner"}
         )
         return result
 
@@ -212,7 +227,8 @@ def mini_train(
     epochs: int,
 ):
     device = get_module_device(model)
-    dataloader, _ = either_dataloader_dataset_to_both(train_data, batch_size=batch_size)
+    dataloader, _ = either_dataloader_dataset_to_both(train_data,
+                                                      batch_size=batch_size)
     n = len(dataloader.dataset)
     total_examples = epochs * n
     with make_pbar(total=total_examples) as pbar:
@@ -289,7 +305,8 @@ def compute_all_reps(
                     break
                 x = layer(x)
                 if i in layers:
-                    reps[i][start_index : start_index + minibatch_size] = x.cpu()
+                    reps[i][start_index: start_index + minibatch_size] =\
+                        x.cpu()
 
             start_index += minibatch_size
 
