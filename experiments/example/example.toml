@@ -1,10 +1,16 @@
+# This is an example experiment to run the SPECTRE defense on a
+# simple 1 ;ixel poisoning attack. The config file is broken down
+# into 5 modules. The first refers to general experiment configurations
+# while the next four detail parts of the experiment documented
+# in the schemas/ folder.
+
 # Global / experiment-wide configurations
 [experiment]
 ID = "example"
 attack_name = "pixel"
 defense = "spectre"
 
-# attack + train module
+# Module to facilitate poisoning and initial training
 [base_trainer]
 output = "experiments/example/model.pth"
 model = "r18"
@@ -14,6 +20,7 @@ target_label = 4
 poisoner = "1xp"
 poisons = 500
 
+# Module to extract representations from a trained model
 [base_rep_saver]
 input = "experiments/example/model.pth"
 output = "experiments/example/reps/"
@@ -23,6 +30,7 @@ source_label = 9
 target_label = 4
 poisons = 500
 
+# Module to run a defense on the extracted representations
 [base_defense]
 input = "experiments/example/reps/"
 output = "experiments/example/rcov.npy"
@@ -30,6 +38,7 @@ defense = "quantum"
 target_label = 4
 poisons = 500
 
+# Module to retrain on the cleaned dataset
 [base_retrainer]
 input = "experiments/example/rcov.npy"
 output = "experiments/example/retrain_model.pth"
