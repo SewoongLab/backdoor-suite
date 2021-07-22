@@ -25,6 +25,15 @@ In particular, each module defines some specific task in the attack-defense chai
 
 More documentation can be found in the `schemas` folder.
 
+### Supported Attacks:
+1. BadNets: Identifying Vulnerabilities in the Machine Learning Model Supply Chain [(Gu et al., 2017)](https://arxiv.org/abs/1708.06733).
+1. A new Backdoor Attack in CNNs by training set corruption without label poisoning [(Barni et al., 2019)](https://arxiv.org/abs/1902.11237)
+
+### Supported Defenses:
+1. Detecting Backdoor Attacks on Deep Neural Networks by Activation Clustering [(Chen et al., 2018)](https://arxiv.org/abs/1811.03728).
+1. Spectral Signatures in Backdoor Attacks [(Tran et al., 2018)](https://arxiv.org/abs/1811.00636).
+1. SPECTRE: Defending Against Backdoor Attacks Using Robust Statistics [(Hayase et al., 2021)](https://arxiv.org/abs/2104.11315).
+
 ---
 ## Installation
 ### Prerequisites:
@@ -96,18 +105,33 @@ One of the goals of this project is to develop a ubiquitous testing and validati
 
 The fastest way to add an attack, defense, or general feature to this repository is to submit a pull request, however, time permitting, the repository maintainer is available to help [contact](rishijha.com).
 
-### Publishing your own module
-Finishing...
-
 ### Adding to existing modules
-Finishing...
+The easiest way for us to add your project is a pull request adding to one of the `base` modules. The easiest way for you to do this is probably to submodule in your own project. We ask that any pull requests of this nature meet the following requirements:
+
+1. Added documentation in the corresponding file in the `schemas` folder.
+1. If relevant, added information to the [Supported Attacks / Defenses](##in-this-repo) section of this `README.md`
+1. Related submodules added to the `.gitmodules` file.
+1. Output compatibility with other modules in the repository.
+
+Don't hesitate to reach out with questions or for help migrating your code!
+
+### Publishing your own module
+The quickest way for us to integrate a new module is for it to be requested with the following:
+
+1. A schema in the `schemas` folder to document the necessary configurations to run the experiment.
+1. A folder of the form `modules/[new module name]` with file `run_experiment.py` inside of it.
+1. Added information to the [Supported Attacks / Defenses](##in-this-repo) section of this `README.md`
+1. Related submodules added to the `.gitmodules` file.
+1. Output compatibility with other modules in the repository.
+
+We recommend submoduling your own projects code and using the `run_experiment.py` file to create a common interface between this library and your code. Don't hesitate to reach out with questions or for help migrating your code!
 
 ---
 ## Planned Features
 ### General:
 * Automated test runner based on `.toml` configs 
 ### Attacks:
-* [Label Consistent Backdoor Attacks](https://arxiv.org/abs/1912.02771)
-* [Hidden Trigger Backdoor Attacks](https://arxiv.org/abs/1910.00033)
+* Label Consistent Backdoor Attacks [(Turner et al., 2019)](https://arxiv.org/abs/1912.02771).
+* Hidden Trigger Backdoor Attacks [(Saha et al., 2019)](https://arxiv.org/abs/1910.00033).
 ### Defenses:
-* [STRIP: A Defence Against Trojan Attacks on Deep Neural Networks](https://arxiv.org/abs/1902.06531)
+* STRIP: A Defence Against Trojan Attacks on Deep Neural Networks [(Gao et al., 2020)](https://arxiv.org/abs/1902.06531).
