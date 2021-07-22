@@ -1,6 +1,6 @@
 # robust-ml-suite
 ## tl;dr
-A module-based repository for testing and evaluating backdoor attacks and defenses. For information on experiments and testing [click here](##installation).
+A module-based repository for testing and evaluating backdoor attacks and defenses. For information on experiments and testing [click here](#installation).
 
 ---
 ## Introduction
@@ -8,7 +8,7 @@ As third party and federated machine learning models become more popular, so, to
 
 With this repository we hope to provide a ubiquitous testing and evaluation platform to standardize the settings under which these attacks and their subsequent defenses are considered, pitting relevant attack literature against developed defenses. In this light, we welcome any contributions or suggested changes to the repository. 
 
-In the rest of this document we detail (1) [how the repo works](##in-the-repo) (2) [how to run an experiment](##installation), and (3) [how to contribute](##adding-content). Please don't hesitate to file a GitHub issue or reach out [Rishi Jha](rishijha.com) for any issues or requests!
+In the rest of this document we detail (1) [how the repo works](#in-the-repo) (2) [how to run an experiment](#installation), and (3) [how to contribute](#adding-content). Please don't hesitate to file a GitHub issue or reach out [Rishi Jha](rishijha.com) for any issues or requests!
 
 ---
 
@@ -109,7 +109,7 @@ The fastest way to add an attack, defense, or general feature to this repository
 The easiest way for us to add your project is a pull request adding to one of the `base` modules. The easiest way for you to do this is probably to submodule in your own project. We ask that any pull requests of this nature meet the following requirements:
 
 1. Added documentation in the corresponding file in the `schemas` folder.
-1. If relevant, added information to the [Supported Attacks / Defenses](##in-this-repo) section of this `README.md`
+1. If relevant, added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`
 1. Related submodules added to the `.gitmodules` file.
 1. Output compatibility with other modules in the repository.
 
@@ -120,7 +120,7 @@ The quickest way for us to integrate a new module is for it to be requested with
 
 1. A schema in the `schemas` folder to document the necessary configurations to run the experiment.
 1. A folder of the form `modules/[new module name]` with file `run_experiment.py` inside of it.
-1. Added information to the [Supported Attacks / Defenses](##in-this-repo) section of this `README.md`
+1. Added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`
 1. Related submodules added to the `.gitmodules` file.
 1. Output compatibility with other modules in the repository.
 
