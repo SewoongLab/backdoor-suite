@@ -15,7 +15,7 @@ In the rest of this document we detail (1) [how the repo works](#in-the-repo) (2
 ## In this repo
 This repo is split into three main folders: `experiments`, `modules` and `schemas`. The `experiments` folder (as described in more detail [here](#installation)) contains subfolders and `.toml` configuration files on which an experiment may be run. The `modules` folder stores source code for each of the subsequent part of an experiment. These modules take in specific inputs and outputs as defined by their subseqeunt `.toml` documentation in the `schemas` folder. 
 
-In particular, each module defines some specific task in the attack-defense chain. As mentioned earlier, each module has explicitly defined inputs and outputs that, we hope, facilitate the addition of attacks and defenses with diverse requirements (i.e., training loops or representations). As discussed [here]() we hope that researchers can add their own modules or expand on the existing `base` modules.
+In particular, each module defines some specific task in the attack-defense chain. As mentioned earlier, each module has explicitly defined inputs and outputs that, we hope, facilitate the addition of attacks and defenses with diverse requirements (i.e., training loops or representations). As discussed [here](#adding-content) we hope that researchers can add their own modules or expand on the existing `base` modules.
 
 ### Existing modules:
 1. `base_trainer`: Configured to poison and train ResNet on the CIFAR-10 dataset.
