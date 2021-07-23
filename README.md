@@ -1,4 +1,4 @@
-# robust-ml-suite
+# backdoor-suite
 ## tl;dr
 A module-based repository for testing and evaluating backdoor attacks and defenses. For information on experiments and testing [click here](#installation).
 
