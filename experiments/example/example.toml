@@ -1,14 +1,8 @@
 # This is an example experiment to run the SPECTRE defense on a
-# simple 1 ;ixel poisoning attack. The config file is broken down
+# simple 1 pixel poisoning attack. The config file is broken down
 # into 5 modules. The first refers to general experiment configurations
 # while the next four detail parts of the experiment documented
 # in the schemas/ folder.
-
-# Global / experiment-wide configurations
-[experiment]
-ID = "example"
-attack_name = "pixel"
-defense = "spectre"
 
 # Module to facilitate poisoning and initial training
 [base_trainer]

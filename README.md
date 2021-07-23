@@ -63,6 +63,8 @@ In that folder initialize a config file called `[experiment name].toml`. An exam
 
 The `.toml` file should contain references to the modules that you would like to run with each relevant field as defined by its documentation in `schemas/[module name]`. This file will serve as the configuration file for the entire experiment. As a convention the output for module **n** is the input for module **n + 1**.
 
+**Note:** the `[INTERNAL]` block of a schema should not be transferred into a config file.
+
 ```
 [module_name_1]
 output=...
@@ -88,48 +90,64 @@ fieldn=...
 ### Running a module:
 At the moment, all modules must be manually run using:
 ```
-python modules/[module name]/run_experiment.py [experiment name] [module name]
+python run_experiment.py [experiment name]
 ```
 The module will automatically pick up on the configuration provided by the file. 
 
-As an example, to run the initial training regime for the example experiment one could run:
+As an example, to run the example experiment one could run:
 ```
-python modules/base_trainer/run_experiment.py example base_trainer
+python run_experiment.py example
 ```
 More module documentation can be found in the `schemas` folder.
 
 ---
 
-## Adding Content:
+## Adding Content
 One of the goals of this project is to develop a ubiquitous testing and validation framework for backdoor attacks. As such, we appreciate and welcome all contributions ranging fron structural changes to additional attacks and defenses.
 
 The fastest way to add an attack, defense, or general feature to this repository is to submit a pull request, however, time permitting, the repository maintainer is available to help [contact](rishijha.com).
 
-### Adding to existing modules
-The easiest way for us to add your project is a pull request adding to one of the `base` modules. The easiest way for you to do this is probably to submodule in your own project. We ask that any pull requests of this nature meet the following requirements:
+### Schemas:
+The schema for a module is designed to provide documentation on how a module works, the config fields it relies on, and how the experiment runner should treat the module. Schemas should be formatted as follows:
 
-1. Added documentation in the corresponding file in the `schemas` folder.
-1. If relevant, added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`
-1. Related submodules added to the `.gitmodules` file.
-1. Output compatibility with other modules in the repository.
+```
+# Module Descriptiom
+
+[INTERNAL]  # (Optional section for internals)
+module_name = "<Name of module that this schema refers to>"
+
+[module_name]
+field_1_name = "field 1 description"
+field_2_name = "field 2 description"
+...
+field_n_name = "field n description"
+```
+For the above if the optional `[INTERNAL]` section or `module_name` field are not used, the default `module_name` is set to be the name of the configuration file.   
+
+### Adding to existing modules:
+The easiest way for us to add your project is a pull request, adding to one of the `base` modules. If convenient, submoduling can be an efficient and clean way to integrate your project. We ask that any pull requests of this nature:
+
+1. Add documentation in the corresponding file in the `schemas` folder.
+1. If relevant, add information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`
+1. Add related submodules to the `.gitmodules` file.
+1. Ensure output compatibility with other modules in the repository.
 
 Don't hesitate to reach out with questions or for help migrating your code!
 
-### Publishing your own module
+### Publishing your own module:
 The quickest way for us to integrate a new module is for it to be requested with the following:
 
-1. A schema in the `schemas` folder to document the necessary configurations to run the experiment.
-1. A folder of the form `modules/[new module name]` with file `run_experiment.py` inside of it.
-1. Added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`
+1. A schema in the `schemas` folder to document the necessary configurations to run the experiment. Don't forget to add the `[INTERNAL]` section if needed.
+1. A folder of the form `modules/[new module name]` with file `run_module.py` inside of it.
+1. A function named `run` within `run_module.py` for all supported module logic.
+1. Added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`.
 1. Related submodules added to the `.gitmodules` file.
 1. Output compatibility with other modules in the repository.
 
-We recommend submoduling your own projects code and using the `run_experiment.py` file to create a common interface between this library and your code. Don't hesitate to reach out with questions or for help migrating your code!
+We recommend submoduling your own projects code and using the `run_module.py` file to create a common interface between this library and your code. Don't hesitate to reach out with questions or for help migrating your code!
 
 ---
 ## Planned Features
-### General:
-* Automated test runner based on `.toml` configs 
 ### Attacks:
 * Label Consistent Backdoor Attacks [(Turner et al., 2019)](https://arxiv.org/abs/1912.02771).
 * Hidden Trigger Backdoor Attacks [(Saha et al., 2019)](https://arxiv.org/abs/1910.00033).

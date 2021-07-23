@@ -13,6 +13,7 @@ from base_utils.model.model import SequentialImageNetwork,\
                                    SequentialImageNetworkMod
 import torch.backends.cudnn as cudnn
 import toml
+from collections import OrderedDict
 
 from base_utils.datasets import make_dataloader
 
@@ -32,7 +33,7 @@ def extract_toml(experiment_name, module_name=None):
     full_path = generate_full_path(relative_path)
     assert os.path.exists(full_path)
 
-    exp_toml = toml.load(full_path)
+    exp_toml = toml.load(full_path, _dict=OrderedDict)
     if module_name is not None:
         return exp_toml[module_name]
     return exp_toml
