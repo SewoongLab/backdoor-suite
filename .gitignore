@@ -5,7 +5,6 @@ reps/
 .vscode
 /migrated
 /nbconfig
-data_cifar10/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

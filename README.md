@@ -28,6 +28,7 @@ More documentation can be found in the `schemas` folder.
 ### Supported Attacks:
 1. BadNets: Identifying Vulnerabilities in the Machine Learning Model Supply Chain [(Gu et al., 2017)](https://arxiv.org/abs/1708.06733).
 1. A new Backdoor Attack in CNNs by training set corruption without label poisoning [(Barni et al., 2019)](https://arxiv.org/abs/1902.11237)
+1. Label Consistent Backdoor Attacks [(Turner et al., 2019)](https://arxiv.org/abs/1912.02771).
 
 ### Supported Defenses:
 1. Detecting Backdoor Attacks on Deep Neural Networks by Activation Clustering [(Chen et al., 2018)](https://arxiv.org/abs/1811.03728).
@@ -113,7 +114,7 @@ The schema for a module is designed to provide documentation on how a module wor
 ```
 # Module Descriptiom
 
-[INTERNAL]  # (Optional section for internals)
+[INTERNAL]  # (Internal Configurations)
 module_name = "<Name of module that this schema refers to>"
 
 [module_name]
@@ -121,6 +122,12 @@ field_1_name = "field 1 description"
 field_2_name = "field 2 description"
 ...
 field_n_name = "field n description"
+
+[OPTIONAL] # (Optional fields)
+field_1_name = "optional field 1 description"
+field_2_name = "optional field 2 description"
+...
+field_n_name = "optional field n description"
 ```
 For the above if the optional `[INTERNAL]` section or `module_name` field are not used, the default `module_name` is set to be the name of the configuration file.   
 
@@ -137,7 +144,7 @@ Don't hesitate to reach out with questions or for help migrating your code!
 ### Publishing your own module:
 The quickest way for us to integrate a new module is for it to be requested with the following:
 
-1. A schema in the `schemas` folder to document the necessary configurations to run the experiment. Don't forget to add the `[INTERNAL]` section if needed.
+1. A schema in the `schemas` folder to document the necessary configurations to run the experiment. Don't forget to add the `[INTERNAL]` or `[OPTIONAL]` section if needed.
 1. A folder of the form `modules/[new module name]` with file `run_module.py` inside of it.
 1. A function named `run` within `run_module.py` for all supported module logic.
 1. Added information to the [Supported Attacks / Defenses](#in-this-repo) section of this `README.md`.
@@ -149,7 +156,6 @@ We recommend submoduling your own projects code and using the `run_module.py` fi
 ---
 ## Planned Features
 ### Attacks:
-* Label Consistent Backdoor Attacks [(Turner et al., 2019)](https://arxiv.org/abs/1912.02771).
 * Hidden Trigger Backdoor Attacks [(Saha et al., 2019)](https://arxiv.org/abs/1910.00033).
 ### Defenses:
 * STRIP: A Defence Against Trojan Attacks on Deep Neural Networks [(Gao et al., 2020)](https://arxiv.org/abs/1902.06531).

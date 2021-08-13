@@ -41,6 +41,15 @@ def run(experiment_name, module_name):
     target_label = args["target_label"]
     output_path = args["output"]
 
+    reduce_amplitude = variant = None
+    if poisoner_flag[-1] == 'l':
+        reduce_amplitude = None if args['reduce_amplitude'] < 0\
+                                else args['reduce_amplitude']
+        variant = args['variant']
+
+    # TODO:
+    # 2. logic to download files if needed
+
     model = load_model(model_flag)
     target_mask_ind = None
 
@@ -57,11 +66,13 @@ def run(experiment_name, module_name):
 
     print("Building datasets...")
 
-    poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label)
+    poisoner, all_poisoner = pick_poisoner(poisoner_flag,
+                                           target_label,
+                                           reduce_amplitude)
 
     poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test =\
         generate_datasets(poisoner, all_poisoner, eps, clean_label,
-                          target_label, target_mask_ind)
+                          target_label, target_mask_ind, variant)
 
     if train_flag == "sgd":
         batch_size = 128

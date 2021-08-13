@@ -1,5 +1,5 @@
-# This is an example experiment to run the SPECTRE defense on a
-# simple 1 pixel poisoning attack. The config file is broken down
+# This is an example experiment to run the SPECTRE defense on the
+# label consistent backdoor attack. The config file is broken down
 # into 4 modules. Each detail parts of the experiment documented
 # in the schemas/ folder.
 
@@ -10,8 +10,10 @@ model = "r18"
 trainer = "sgd"
 source_label = 9
 target_label = 4
-poisoner = "1xp"
+poisoner = "1xl"
 poisons = 500
+variant = "gan_0_2"
+reduce_amplitude = -1.0
 
 # Module to extract representations from a trained model
 [base_rep_saver]

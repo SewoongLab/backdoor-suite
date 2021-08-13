@@ -31,19 +31,25 @@ for module_name, module_config in args.items():
 
     schema = toml.load(full_path, _dict=OrderedDict)
 
+    optionals = []
+    if 'OPTIONAL' in schema:
+        optionals = list(schema['OPTIONAL'].keys())
+
     # Check if config is well formed
     bad_config = False
     diff_forward = np.setdiff1d(list(schema[module_name].keys()),
                                 list(module_config.keys()))
     for item in diff_forward:
-        print(f"Malformed config: {item} exists in schema but not config.")
-        bad_config = True
+        if item not in optionals:
+            print(f"Malformed config: {item} exists in schema but not config.")
+            bad_config = True
 
     diff_backward = np.setdiff1d(list(module_config.keys()),
                                  list(schema[module_name].keys()))
     for item in diff_backward:
-        print(f"Malformed config: {item} exists in config but not schema.")
-        bad_config = True
+        if item not in optionals:
+            print(f"Malformed config: {item} exists in config but not schema.")
+            bad_config = True
 
     if bad_config:
         exit()
