@@ -1,4 +1,4 @@
-# robust-ml-suite
+# backdoor-suite
 ## tl;dr
 A module-based repository for testing and evaluating backdoor attacks and defenses. For information on experiments and testing [click here](#installation).
 
@@ -8,7 +8,7 @@ As third party and federated machine learning models become more popular, so, to
 
 With this repository we hope to provide a ubiquitous testing and evaluation platform to standardize the settings under which these attacks and their subsequent defenses are considered, pitting relevant attack literature against developed defenses. In this light, we welcome any contributions or suggested changes to the repository. 
 
-In the rest of this document we detail (1) [how the repo works](#in-the-repo) (2) [how to run an experiment](#installation), and (3) [how to contribute](#adding-content). Please don't hesitate to file a GitHub issue or reach out [Rishi Jha](rishijha.com) for any issues or requests!
+In the rest of this document we detail (1) [how the repo works](#in-the-repo) (2) [how to run an experiment](#installation), and (3) [how to contribute](#adding-content). Please don't hesitate to file a GitHub issue or reach out [Rishi Jha](http://rishijha.com/) for any issues or requests!
 
 ---
 
@@ -106,13 +106,13 @@ More module documentation can be found in the `schemas` folder.
 ## Adding Content
 One of the goals of this project is to develop a ubiquitous testing and validation framework for backdoor attacks. As such, we appreciate and welcome all contributions ranging fron structural changes to additional attacks and defenses.
 
-The fastest way to add an attack, defense, or general feature to this repository is to submit a pull request, however, time permitting, the repository maintainer is available to help [contact](rishijha.com).
+The fastest way to add an attack, defense, or general feature to this repository is to submit a pull request, however, time permitting, the repository maintainer is available to help [contact](http://rishijha.com/).
 
 ### Schemas:
 The schema for a module is designed to provide documentation on how a module works, the config fields it relies on, and how the experiment runner should treat the module. Schemas should be formatted as follows:
 
 ```
-# Module Descriptiom
+# Module Description
 
 [INTERNAL]  # (Internal Configurations)
 module_name = "<Name of module that this schema refers to>"
