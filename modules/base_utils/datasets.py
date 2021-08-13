@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset, ConcatDataset, TensorDataset, 
 from torchvision import datasets, transforms
 from typing import Callable, Iterable, Tuple
 from pathlib import Path
+import subprocess
 
 
 CIFAR_PATH = Path("./data/data_cifar10")
@@ -260,6 +261,11 @@ def load_cifar_dataset(train=True):
 def load_label_consistent_dataset(variant='gan_0_2'):
     cifar = load_cifar_dataset()
     labels = torch.tensor([xy[1] for xy in cifar])
+    if not LABEL_CONSISTENT_PATH.is_dir():
+        command = ["./modules/base_utils/label_consistent_setup.sh"]
+        print("Downloading Label Consistent Dataset...")
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
+        process.wait()
     images = torch.tensor(np.load(LABEL_CONSISTENT_PATH / (variant + '.npy')))
     dataset = TensorDataset(images, labels)
 
@@ -365,10 +371,10 @@ def generate_datasets(
     target_mask_ind,
     variant=None
 ):
-    
+
     cifar_train_dataset = load_cifar_dataset()
     cifar_test_dataset = load_cifar_dataset(train=False)
-    
+
     label_consistent_dataset = None
     if variant:
         label_consistent_dataset = load_label_consistent_dataset(variant)        
