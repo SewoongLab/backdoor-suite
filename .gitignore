@@ -1,4 +1,6 @@
 # Project specific
+out/
+slurm/
 reps/
 *.pth
 *.npy
