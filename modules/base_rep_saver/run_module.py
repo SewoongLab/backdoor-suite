@@ -41,14 +41,18 @@ def run(experiment_name, module_name):
     target_label = args["target_label"]
     output_folder = args["output"]
 
+    if poisoner_flag[-1] == 'l':
+        reduce_amplitude = None if args['reduce_amplitude'] < 0\
+                                else args['reduce_amplitude']
+        variant = args['variant']
 
     print("Evaluating...")
 
-    poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label)
+    poisoner, all_poisoner = pick_poisoner(poisoner_flag, target_label, reduce_amplitude)
 
     poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test = \
         generate_datasets(poisoner, all_poisoner, eps, clean_label, target_label,
-                        None)
+                          None, variant)
 
     clean_train_acc = clf_eval(model, poison_cifar_train.clean_dataset)[0]
     poison_train_acc = clf_eval(model, poison_cifar_train.poison_dataset)[0]

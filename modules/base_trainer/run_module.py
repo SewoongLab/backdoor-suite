@@ -47,9 +47,6 @@ def run(experiment_name, module_name):
                                 else args['reduce_amplitude']
         variant = args['variant']
 
-    # TODO:
-    # 2. logic to download files if needed
-
     model = load_model(model_flag)
     target_mask_ind = None
 
@@ -58,8 +55,7 @@ def run(experiment_name, module_name):
     if retrain:
         input_path = generate_full_path(args["input"])
         target_mask = np.load(input_path)
-        assert len(target_mask) == 5000 + eps
-        target_mask_ind = [i for i in range(5000 + eps) if not target_mask[i]]
+        target_mask_ind = [i for i in range(len(target_mask)) if not target_mask[i]]
         poison_removed = np.sum(target_mask[-eps:])
         clean_removed = np.sum(target_mask) - poison_removed
         print(f"{poison_removed=} {clean_removed=}")

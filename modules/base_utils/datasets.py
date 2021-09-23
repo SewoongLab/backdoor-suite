@@ -266,7 +266,7 @@ def load_label_consistent_dataset(variant='gan_0_2'):
         print("Downloading Label Consistent Dataset...")
         process = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
         process.wait()
-    images = torch.tensor(np.load(LABEL_CONSISTENT_PATH / (variant + '.npy')))
+    images = torch.tensor(np.load(LABEL_CONSISTENT_PATH / (variant + '.npy')) / 255)
     dataset = TensorDataset(images, labels)
 
     return MappedDataset(dataset, LABEL_CONSISTENT_TRANSFORM_XY)
@@ -377,13 +377,15 @@ def generate_datasets(
 
     label_consistent_dataset = None
     if variant:
-        label_consistent_dataset = load_label_consistent_dataset(variant)        
+        label_consistent_dataset = load_label_consistent_dataset(variant)
+
+    poison_label = target_label if label_consistent_dataset else clean_label
 
     poison_cifar_train = PoisonedDataset(
         cifar_train_dataset,
         poisoner,
         eps=eps,
-        label=clean_label,
+        label=poison_label,
         transform=CIFAR_TRANSFORM_TRAIN_XY,
         poison_dataset=label_consistent_dataset
     )
@@ -402,7 +404,7 @@ def generate_datasets(
         cifar_test_dataset,
         poisoner,
         eps=1000,
-        label=clean_label,
+        label=poison_label,
         transform=CIFAR_TRANSFORM_TEST_XY,
     )
 
@@ -410,7 +412,7 @@ def generate_datasets(
         cifar_test_dataset,
         all_poisoner,
         eps=1000,
-        label=clean_label,
+        label=poison_label,
         transform=CIFAR_TRANSFORM_TEST_XY,
     )
 

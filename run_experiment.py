@@ -62,4 +62,3 @@ for module_name, module_config in args.items():
     module_file = resolves_to.get(module_name, module_name)
     __import__(f"{module_file}", fromlist=["run_module"]).run_module.run(
         experiment_name, module_name)
-    input()
