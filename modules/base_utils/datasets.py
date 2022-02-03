@@ -96,7 +96,7 @@ class PoisonedDataset(Dataset):
 
             rng = np.random.RandomState(seed)
             indices = rng.choice(clean_inds, eps, replace=False)
-
+        
         self.indices = indices
         self.poison_dataset = MappedDataset(Subset(poison_dataset or dataset, indices),
                                             poisoner,
@@ -107,6 +107,7 @@ class PoisonedDataset(Dataset):
 
         clean_indices = list(set(range(len(dataset))).difference(indices))
         self.clean_dataset = Subset(dataset, clean_indices)
+
         if transform:
             self.clean_dataset = MappedDataset(self.clean_dataset, transform)
 
@@ -379,13 +380,11 @@ def generate_datasets(
     if variant:
         label_consistent_dataset = load_label_consistent_dataset(variant)
 
-    poison_label = target_label if label_consistent_dataset else clean_label
-
     poison_cifar_train = PoisonedDataset(
         cifar_train_dataset,
         poisoner,
         eps=eps,
-        label=poison_label,
+        label=target_label if label_consistent_dataset else clean_label,
         transform=CIFAR_TRANSFORM_TRAIN_XY,
         poison_dataset=label_consistent_dataset
     )
@@ -404,7 +403,7 @@ def generate_datasets(
         cifar_test_dataset,
         poisoner,
         eps=1000,
-        label=poison_label,
+        label=clean_label,
         transform=CIFAR_TRANSFORM_TEST_XY,
     )
 
@@ -412,7 +411,7 @@ def generate_datasets(
         cifar_test_dataset,
         all_poisoner,
         eps=1000,
-        label=poison_label,
+        label=clean_label,
         transform=CIFAR_TRANSFORM_TEST_XY,
     )
 

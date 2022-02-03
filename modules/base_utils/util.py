@@ -41,7 +41,7 @@ def extract_toml(experiment_name, module_name=None):
 
 def load_model(model_flag):
     if model_flag == "r32p":
-        import model.resnet
+        import base_utils.model.resnet as resnet
 
         return SequentialImageNetworkMod(resnet.resnet32()).cuda()
     elif model_flag == "r18":

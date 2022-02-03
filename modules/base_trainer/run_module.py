@@ -42,7 +42,7 @@ def run(experiment_name, module_name):
     output_path = args["output"]
 
     reduce_amplitude = variant = None
-    if poisoner_flag[-1] == 'l':
+    if args["reduce_amplitude"]:
         reduce_amplitude = None if args['reduce_amplitude'] < 0\
                                 else args['reduce_amplitude']
         variant = args['variant']

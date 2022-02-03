@@ -41,7 +41,7 @@ def run(experiment_name, module_name):
     target_label = args["target_label"]
     output_folder = args["output"]
 
-    if poisoner_flag[-1] == 'l':
+    if args["reduce_amplitude"]:
         reduce_amplitude = None if args['reduce_amplitude'] < 0\
                                 else args['reduce_amplitude']
         variant = args['variant']

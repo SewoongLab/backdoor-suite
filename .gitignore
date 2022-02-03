@@ -1,5 +1,6 @@
 # Project specific
 out/
+out*/
 slurm/
 reps/
 *.pth
@@ -7,6 +8,7 @@ reps/
 .vscode
 /migrated
 /nbconfig
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
