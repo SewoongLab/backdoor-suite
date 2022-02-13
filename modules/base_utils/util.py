@@ -48,6 +48,9 @@ def load_model(model_flag):
         from pytorch_cifar.models import resnet
 
         return SequentialImageNetwork(resnet.ResNet18()).cuda()
+    elif model_flag == "l1":
+        import base_utils.model.lenet as lenet
+        return lenet.LeNet1().cuda()
     else:
         raise NotImplementedError
 

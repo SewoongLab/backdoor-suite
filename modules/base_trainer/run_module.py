@@ -34,6 +34,7 @@ def run(experiment_name, module_name):
     args = extract_toml(experiment_name, module_name)
 
     model_flag = args["model"]
+    dataset_flag = args["dataset"]
     train_flag = args["trainer"]
     eps = args["poisons"]
     poisoner_flag = args["poisoner"]
@@ -42,7 +43,7 @@ def run(experiment_name, module_name):
     output_path = args["output"]
 
     reduce_amplitude = variant = None
-    if args["reduce_amplitude"]:
+    if "reduce_amplitude" in args:
         reduce_amplitude = None if args['reduce_amplitude'] < 0\
                                 else args['reduce_amplitude']
         variant = args['variant']
@@ -63,11 +64,12 @@ def run(experiment_name, module_name):
     print("Building datasets...")
 
     poisoner, all_poisoner = pick_poisoner(poisoner_flag,
+                                           dataset_flag,
                                            target_label,
                                            reduce_amplitude)
 
-    poison_cifar_train, cifar_test, poison_cifar_test, all_poison_cifar_test =\
-        generate_datasets(poisoner, all_poisoner, eps, clean_label,
+    poison_train, test, poison_test, all_poison_test =\
+        generate_datasets(dataset_flag, poisoner, all_poisoner, eps, clean_label,
                           target_label, target_mask_ind, variant)
 
     if train_flag == "sgd":
@@ -100,8 +102,8 @@ def run(experiment_name, module_name):
 
     mini_train(
         model=model,
-        train_data=poison_cifar_train,
-        test_data=cifar_test,
+        train_data=poison_train,
+        test_data=test,
         batch_size=batch_size,
         opt=opt,
         scheduler=lr_scheduler,
@@ -112,16 +114,16 @@ def run(experiment_name, module_name):
 
     if not retrain:
         clean_train_acc = clf_eval(model,
-                                   poison_cifar_train.clean_dataset)[0]
+                                   poison_train.clean_dataset)[0]
         poison_train_acc = clf_eval(model,
-                                    poison_cifar_train.poison_dataset)[0]
+                                    poison_train.poison_dataset)[0]
         print(f"{clean_train_acc=}")
         print(f"{poison_train_acc=}")
 
-    clean_test_acc = clf_eval(model, cifar_test)[0]
-    poison_test_acc = clf_eval(model, poison_cifar_test.poison_dataset)[0]
+    clean_test_acc = clf_eval(model, test)[0]
+    poison_test_acc = clf_eval(model, poison_test.poison_dataset)[0]
     all_poison_test_acc = clf_eval(model,
-                                   all_poison_cifar_test.poison_dataset)[0]
+                                   all_poison_test.poison_dataset)[0]
 
     print(f"{clean_test_acc=}")
     print(f"{poison_test_acc=}")
