@@ -42,6 +42,7 @@ def run(experiment_name, module_name):
     target_label = args["target_label"]
     output_folder = args["output"]
 
+    reduce_amplitude = variant = None
     if "reduce_amplitude" in args:
         reduce_amplitude = None if args['reduce_amplitude'] < 0\
                                 else args['reduce_amplitude']
