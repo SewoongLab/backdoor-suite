@@ -101,15 +101,13 @@ def run(experiment_name, module_name):
     i = 0
     while not end:
         print("Extracting gradients...")
-        grads = compute_grads(model=model, data=poison_train_sub)
-        np.save('./' + experiment_name + 'grads.npy', grads)
+        grads, _ = compute_grads(model=model, data=poison_train_sub)
 
         print("Computing scores...")
         nabla_hat = np.mean(grads, axis=0)
         G = grads - nabla_hat
         _, v = scipy.sparse.linalg.eigsh(G.T @ G, k=1)
         tau = G.dot(v)**2
-        np.save('./' + experiment_name + 'tau.npy', tau)
         indices = filter(tau, C, SIGMA, n_max_remove)
         num_removed = n - len(indices)
 

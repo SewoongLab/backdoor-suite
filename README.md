@@ -18,9 +18,11 @@ This repo is split into three main folders: `experiments`, `modules` and `schema
 In particular, each module defines some specific task in the attack-defense chain. As mentioned earlier, each module has explicitly defined inputs and outputs that, we hope, facilitate the addition of attacks and defenses with diverse requirements (i.e., training loops or representations). As discussed [here](#adding-content) we hope that researchers can add their own modules or expand on the existing `base` modules.
 
 ### Existing modules:
-1. `base_trainer`: Configured to poison and train ResNet on the CIFAR-10 dataset.
-1. `base_rep_saver`: Configured to extract representations from ResNet on poisoned CIFAR-10 data.
+1. `base_trainer`: Configured to poison and train a model on either the CIFAR-10 or MNIST datasets.
+1. `base_rep_saver`: Configured to extract representations from a model poisoned CIFAR-10 or MNIST data.
+1. `base_grad_saver`: Configured to extract gradients from a model on poisoned CIFAR-10 or MNIST data.
 1. `base_defense`: Configured to implement a defense based on the class representations on poisoned CIFAR-10. At the moment implements three defenses: PCA, k-means, and SPECTRE.
+1. `sever`: Configured to implement a defense based on the gradients of poisoned MNIST images. Referenced [here](#supported-defenses).
 1. `base_utils`: Utility module, used by the base modules.
 
 More documentation can be found in the `schemas` folder.
@@ -34,6 +36,7 @@ More documentation can be found in the `schemas` folder.
 1. Detecting Backdoor Attacks on Deep Neural Networks by Activation Clustering [(Chen et al., 2018)](https://arxiv.org/abs/1811.03728).
 1. Spectral Signatures in Backdoor Attacks [(Tran et al., 2018)](https://arxiv.org/abs/1811.00636).
 1. SPECTRE: Defending Against Backdoor Attacks Using Robust Statistics [(Hayase et al., 2021)](https://arxiv.org/abs/2104.11315).
+1. Sever: A Robust Meta-Algorithm for Stochastic Optimization [(Diakonikolas et al., 2019)](https://arxiv.org/abs/1803.02815)
 
 ---
 ## Installation
@@ -114,7 +117,7 @@ The schema for a module is designed to provide documentation on how a module wor
 ```
 # Module Description
 
-[INTERNAL]  # (Internal Configurations)
+[INTERNAL]  # Internal configurations
 module_name = "<Name of module that this schema refers to>"
 
 [module_name]
@@ -123,7 +126,7 @@ field_2_name = "field 2 description"
 ...
 field_n_name = "field n description"
 
-[OPTIONAL] # (Optional fields)
+[OPTIONAL] # Optional fields
 field_1_name = "optional field 1 description"
 field_2_name = "optional field 2 description"
 ...
@@ -158,4 +161,5 @@ We recommend submoduling your own projects code and using the `run_module.py` fi
 ### Attacks:
 * Hidden Trigger Backdoor Attacks [(Saha et al., 2019)](https://arxiv.org/abs/1910.00033).
 ### Defenses:
+* Robust Training in High Dimensions via Block Coordinate Geometric Median Descent [(Acharya et al., 2021)](https://arxiv.org/abs/2106.08882)
 * STRIP: A Defence Against Trojan Attacks on Deep Neural Networks [(Gao et al., 2020)](https://arxiv.org/abs/1902.06531).
