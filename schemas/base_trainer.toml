@@ -1,6 +1,6 @@
 ### 
 # base_trainer schema
-# Configured to poison and train a model on the CIFAR-10 dataset.
+# Configured to poison and train a model on either the MNIST CIFAR-10 datasets.
 # Outputs the .pth of a trained model
 ###
 

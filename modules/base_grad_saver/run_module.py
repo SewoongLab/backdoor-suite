@@ -1,6 +1,6 @@
 """
-Implementation of a basic representation saving module.
-Saves representations per class for a previously trained model.
+Implementation of a basic gradient saving module.
+Saves gradients and labels of a previously trained model.
 """
 
 import sys
@@ -8,22 +8,20 @@ import os
 
 import torch
 from pathlib import Path
-from tqdm import trange
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..')
     ))
 
-from base_utils.datasets import pick_poisoner, generate_datasets,\
-                                LabelSortedDataset
+from base_utils.datasets import pick_poisoner, generate_datasets,
 from base_utils.util import extract_toml, generate_full_path, clf_eval,\
-                            load_model, compute_all_reps
+                            load_model, compute_grads
 
 
 def run(experiment_name, module_name):
     """
-    Extracts representations from a pretrained model.
+    Extracts gradients from a pretrained model.
 
     :param experiment_name: Name of the experiment in configuration.
     :param module_name: Name of the module in configuration.
@@ -42,6 +40,7 @@ def run(experiment_name, module_name):
     target_label = args["target_label"]
     output_folder = args["output"]
 
+    reduce_amplitude = variant = None
     if "reduce_amplitude" in args:
         reduce_amplitude = None if args['reduce_amplitude'] < 0\
                                 else args['reduce_amplitude']
@@ -69,22 +68,15 @@ def run(experiment_name, module_name):
     print(f"{poison_test_acc=}")
     print(f"{all_poison_test_acc=}")
 
-    lsd = LabelSortedDataset(poison_train)
+    target_grads, labels = compute_grads(model=model, data=poison_train)
 
-    if model_flag == "r32p":
-        layer = 14
-    elif model_flag == "r18":
-        layer = 13
-
-    for i in trange(lsd.n, dynamic_ncols=True):
-        target_reps = compute_all_reps(model, lsd.subset(i), layers=[layer],
-                                    flat=True)[
-            layer
-        ]
-        output_folder_path = generate_full_path(output_folder)
-        filename = output_folder_path + str(i) + ".npy"
-        Path(output_folder_path).mkdir(parents=True, exist_ok=True)
-        np.save(filename, target_reps.numpy())
+    output_folder_path = generate_full_path(output_folder)
+    grad_fn = output_folder_path + "grads.npy"
+    Path(output_folder_path).mkdir(parents=True, exist_ok=True)
+    np.save(grad_fn, target_grads)
+    labels_fn = output_folder_path + "labels.npy"
+    Path(output_folder_path).mkdir(parents=True, exist_ok=True)
+    np.save(labels_fn, labels)
 
 
 if __name__ == "__main__":
