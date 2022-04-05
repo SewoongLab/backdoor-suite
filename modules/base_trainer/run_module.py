@@ -8,17 +8,15 @@ import sys
 import os
 
 import torch
-from torch import optim
 import numpy as np
 
 sys.path.insert(0, os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..')
     ))
 
-from ranger_opt.ranger import ranger2020 as ranger
 from base_utils.datasets import pick_poisoner, generate_datasets
 from base_utils.util import extract_toml, load_model, generate_full_path,\
-                            FlatThenCosineAnnealingLR, clf_eval, mini_train
+                            clf_eval, mini_train, get_train_info
 
 
 def run(experiment_name, module_name):
@@ -41,6 +39,11 @@ def run(experiment_name, module_name):
     clean_label = args["source_label"]
     target_label = args["target_label"]
     output_path = args["output"]
+
+    batch_size = args.get("batch_size", None)
+    epochs = args.get("epochs", None)
+    optim_kwargs = args.get("optim_kwargs", {})
+    scheduler_kwargs = args.get("scheduler_kwargs", {})
 
     reduce_amplitude = variant = None
     if "reduce_amplitude" in args:
@@ -72,31 +75,14 @@ def run(experiment_name, module_name):
         generate_datasets(dataset_flag, poisoner, all_poisoner, eps, clean_label,
                           target_label, target_mask_ind, variant)
 
-    if train_flag == "sgd":
-        batch_size = 128
-        epochs = 200
-        opt = torch.optim.SGD(
-            model.parameters(),
-            lr=0.1,
-            momentum=0.9,
-            nesterov=True,
-            weight_decay=2e-4
-        )
-        lr_scheduler = optim.lr_scheduler.MultiStepLR(opt,
-                                                      milestones=[75, 150],
-                                                      gamma=0.1)
-
-    elif train_flag == "ranger":
-        batch_size = 128
-        epochs = 60
-        opt = ranger.Ranger(
-            model.parameters(),
-            lr=0.001 * (batch_size / 32),
-            weight_decay=1e-1,
-            betas=(0.9, 0.999),
-            eps=1e-1,
-        )
-        lr_scheduler = FlatThenCosineAnnealingLR(opt, T_max=epochs)
+    batch_size, epochs, opt, lr_scheduler = get_train_info(
+        model.parameters(),
+        train_flag,
+        batch_size=batch_size,
+        epochs=epochs,
+        optim_kwargs=optim_kwargs,
+        scheduler_kwargs=scheduler_kwargs
+    )
 
     print("Training...")
 
