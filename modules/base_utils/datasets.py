@@ -127,7 +127,7 @@ class PoisonedDataset(Dataset):
 
             rng = np.random.RandomState(seed)
             indices = rng.choice(clean_inds, eps, replace=False)
-        
+
         self.indices = indices
         self.poison_dataset = MappedDataset(Subset(poison_dataset or dataset, indices),
                                             poisoner,
@@ -427,6 +427,48 @@ def pick_mnist_poisoner(poisoner_flag):
     if poisoner_flag == "1xp":
         x_poisoner = PixelPoisoner(pos=(27, 27), col=(255))
         all_x_poisoner = PixelPoisoner(pos=(27, 27), col=(255))
+    elif poisoner_flag == "3xp":
+        x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(pos=(27, 27), col=(255)),
+                PixelPoisoner(pos=(27, 25), col=(255)),
+                PixelPoisoner(pos=(25, 27), col=(255)),
+            ]
+        )
+        all_x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(pos=(27, 27), col=(255)),
+                PixelPoisoner(pos=(27, 25), col=(255)),
+                PixelPoisoner(pos=(25, 27), col=(255)),
+            ]
+        )
+    elif poisoner_flag == "9xp":
+        x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(pos=(27, 27), col=(255)),
+                PixelPoisoner(pos=(27, 25), col=(255)),
+                PixelPoisoner(pos=(25, 27), col=(255)),
+                PixelPoisoner(pos=(25, 25), col=(255)),
+                PixelPoisoner(pos=(27, 23), col=(255)),
+                PixelPoisoner(pos=(23, 27), col=(255)),
+                PixelPoisoner(pos=(23, 23), col=(255)),
+                PixelPoisoner(pos=(23, 25), col=(255)),
+                PixelPoisoner(pos=(25, 23), col=(255)),
+            ]
+        )
+        all_x_poisoner = MultiPoisoner(
+            [
+                PixelPoisoner(pos=(27, 27), col=(255)),
+                PixelPoisoner(pos=(27, 25), col=(255)),
+                PixelPoisoner(pos=(25, 27), col=(255)),
+                PixelPoisoner(pos=(25, 25), col=(255)),
+                PixelPoisoner(pos=(27, 23), col=(255)),
+                PixelPoisoner(pos=(23, 27), col=(255)),
+                PixelPoisoner(pos=(23, 23), col=(255)),
+                PixelPoisoner(pos=(23, 25), col=(255)),
+                PixelPoisoner(pos=(25, 23), col=(255)),
+            ]
+        )
     else:
         raise NotImplementedError()
     
