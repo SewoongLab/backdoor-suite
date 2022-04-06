@@ -1,0 +1,48 @@
+# This is an example experiment to run the Sever defense on a
+# simple 9 pixel poisoning attack. The config file is broken down
+# into 3 modules. Each detail parts of the experiment documented
+# in the schemas/ folder.
+
+# Module to facilitate poisoning and initial training
+[base_trainer]
+output = "experiments/example_sever/model.pth"
+model = "l1"
+dataset = "mnist"
+trainer = "sgd"
+source_label = 9
+target_label = 4
+poisoner = "9xp"
+poisons = 500
+batch_size = 128
+epochs = 100
+optim_kwargs = { lr = 0.01 }
+scheduler_kwargs = { milestones = [10, 15, 20, 40], gamma = 0.1 }
+
+# Module to run sever
+[sever]
+input = "experiments/example_sever/model.pth"
+output = "experiments/example_sever/"
+model = "l1"
+dataset = "mnist"
+trainer = "sgd"
+source_label = 9
+target_label = 4
+poisoner = "9xp"
+poisons = 500
+c = 1.1
+sigma = 0.3
+batch_size = 128
+epochs = 100
+optim_kwargs = { lr = 0.01 }
+scheduler_kwargs = { milestones = [10, 15, 20, 40], gamma = 0.1 }
+
+# Module to save the final gradients
+[base_grad_saver]
+input = "experiments/example_sever/model_converged.pth"
+output = "experiments/example_sever/"
+model = "l1"
+dataset = "mnist"
+source_label = 9
+target_label = 4
+poisoner = "9xp"
+poisons = 500
