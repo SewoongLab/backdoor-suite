@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..')
     ))
 
-from base_utils.datasets import pick_poisoner, generate_datasets,
+from base_utils.datasets import pick_poisoner, generate_datasets
 from base_utils.util import extract_toml, generate_full_path, clf_eval,\
                             load_model, compute_grads
 
