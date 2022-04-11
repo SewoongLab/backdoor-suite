@@ -1,0 +1,19 @@
+# This is an example experiment to run the Sever defense on a
+# simple 9 pixel poisoning attack. The config file is broken down
+# into 3 modules. Each detail parts of the experiment documented
+# in the schemas/ folder.
+
+# Module to facilitate poisoning and initial training
+[bgmd]
+output = "experiments/example_bgmd/model.pth"
+model = "l1"
+dataset = "mnist"
+trainer = "sgd"
+source_label = 9
+target_label = 4
+poisoner = "9xp"
+poisons = 500
+batch_size = 1
+epochs = 25
+optim_kwargs = { lr = 0.01 }
+scheduler_kwargs = { milestones = [5, 10, 15, 20], gamma = 0.9 }
