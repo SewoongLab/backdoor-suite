@@ -18,11 +18,12 @@ This repo is split into three main folders: `experiments`, `modules` and `schema
 In particular, each module defines some specific task in the attack-defense chain. As mentioned earlier, each module has explicitly defined inputs and outputs that, we hope, facilitate the addition of attacks and defenses with diverse requirements (i.e., training loops or representations). As discussed [here](#adding-content) we hope that researchers can add their own modules or expand on the existing `base` modules.
 
 ### Existing modules:
-1. `base_trainer`: Configured to poison and train a model on either the CIFAR-10 or MNIST datasets.
-1. `base_rep_saver`: Configured to extract representations from a model poisoned CIFAR-10 or MNIST data.
-1. `base_grad_saver`: Configured to extract gradients from a model on poisoned CIFAR-10 or MNIST data.
+1. `base_trainer`: Configured to poison and train a model on any of the supported datasets.
+1. `base_rep_saver`: Configured to extract representations from a model poisoned on any of the supported datasets.
+1. `base_grad_saver`: Configured to extract gradients from a model on poisoned on any of the supported datasets.
 1. `base_defense`: Configured to implement a defense based on the class representations on poisoned CIFAR-10. At the moment implements three defenses: PCA, k-means, and SPECTRE.
-1. `sever`: Configured to implement a defense based on the gradients of poisoned MNIST images. Referenced [here](#supported-defenses).
+1. `sever`: Configured to implement a defense based on the gradients of poisoned MNIST / Fashion-MNIST images. Referenced [here](#supported-defenses).
+1. `bgmd`: Configured to implement a defense based on an efficient implementation of the geometric median. Referenced [here](#supported-defenses).
 1. `base_utils`: Utility module, used by the base modules.
 
 More documentation can be found in the `schemas` folder.
@@ -36,7 +37,13 @@ More documentation can be found in the `schemas` folder.
 1. Detecting Backdoor Attacks on Deep Neural Networks by Activation Clustering [(Chen et al., 2018)](https://arxiv.org/abs/1811.03728).
 1. Spectral Signatures in Backdoor Attacks [(Tran et al., 2018)](https://arxiv.org/abs/1811.00636).
 1. SPECTRE: Defending Against Backdoor Attacks Using Robust Statistics [(Hayase et al., 2021)](https://arxiv.org/abs/2104.11315).
-1. Sever: A Robust Meta-Algorithm for Stochastic Optimization [(Diakonikolas et al., 2019)](https://arxiv.org/abs/1803.02815)
+1. Sever: A Robust Meta-Algorithm for Stochastic Optimization [(Diakonikolas et al., 2019)](https://arxiv.org/abs/1803.02815).
+1. Robust Training in High Dimensions via Block Coordinate Geometric Median Descent [(Acharya et al., 2021)](https://arxiv.org/abs/2106.08882).
+
+### Supported Datasets:
+1. Learning Multiple Layers of Features from Tiny Images [(Krizhevsky, 2009)](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf).
+1. Gradient-based learning applied to document recognition [(LeCun et al., 1998)](http://yann.lecun.com/exdb/publis/pdf/lecun-98.pdf).
+1. Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms [(Xiao et al., 2017)](https://arxiv.org/pdf/1708.07747.pdf).
 
 ---
 ## Installation
@@ -161,5 +168,4 @@ We recommend submoduling your own projects code and using the `run_module.py` fi
 ### Attacks:
 * Hidden Trigger Backdoor Attacks [(Saha et al., 2019)](https://arxiv.org/abs/1910.00033).
 ### Defenses:
-* Robust Training in High Dimensions via Block Coordinate Geometric Median Descent [(Acharya et al., 2021)](https://arxiv.org/abs/2106.08882)
 * STRIP: A Defence Against Trojan Attacks on Deep Neural Networks [(Gao et al., 2020)](https://arxiv.org/abs/1902.06531).

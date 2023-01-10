@@ -1,6 +1,6 @@
 '''
-Modified implementation of LeNet-1 for MNIST inspired by [1] and heavily
-influenced by [2]
+Modified implementation of LeNet-1 for MNIST / Fashion-MNIST inspired by [1]
+and heavily influenced by [2]
 
 Total Parameters: 3246
 
@@ -10,8 +10,7 @@ References:
     and D. Henderson. 1990. Handwritten digit recognition with a
     back-propagation network. Advances in neural information processing
     systems 2. Morgan Kaufmann Publishers Inc.,
-    San Francisco, CA, USA, 396-404.
-
+    San Francisco, CA, USA, 396-404.W
 [2] https://github.com/grvk/lenet-1
 
 If you use this implementation in you work, please don't forget to mention the
