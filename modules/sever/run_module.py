@@ -5,18 +5,13 @@ https://arxiv.org/abs/1803.02815
 """
 
 import sys
-import os
 
 import torch
 import numpy as np
 import scipy.sparse.linalg
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from base_utils.datasets import pick_poisoner, generate_datasets, Subset
-from base_utils.util import extract_toml, load_model, generate_full_path,\
+from modules.base_utils.datasets import pick_poisoner, generate_datasets, Subset
+from modules.base_utils.util import extract_toml, load_model, generate_full_path,\
                             clf_eval, mini_train, compute_grads, get_train_info
 
 
@@ -31,6 +26,7 @@ def filter(tau, c, sigma, n_max_remove):
         candidates = np.where(tau.flatten() > thresh)[0]
         remove = np.intersect1d(top_n_max_remove, candidates)
         return np.delete(base_indices, remove)
+
 
 def run(experiment_name, module_name):
     """

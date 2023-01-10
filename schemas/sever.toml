@@ -1,14 +1,14 @@
 ### 
 # sever schema
-# Configured to run sever in a poisoned model.
+# Configured to run sever on a poisoned model on the MNIST / FMNIST datasets.
 # Outputs the .pth files of each retrained model from the sever procedure and a .npz file for diagnostics.
 ###
 
 [sever]
 input = "string: Path to .pth file"
 output = "string: Path to output folder."
-model = "string: (r18 / r32 / l1). For ResNet-18, ResNet-32, or LeNet-1"
-dataset = "string: (cifar / mnist). For CIFAR-10 and MNIST datasets"
+model = "string: (r18 / r32 / l1 / l5). For ResNet-18, ResNet-32, LeNet-1, or LeNet-5"
+dataset = "string: (mnist / fmnist). For MNIST / Fashion-MNIST datasets"
 trainer = "string: (sgd / ranger). Specifies optimizer. "
 source_label = "int: {0,1,...,9}. Specifies label to mimic"
 target_label = "int: {0,1,...,9}. Specifies label to attack"

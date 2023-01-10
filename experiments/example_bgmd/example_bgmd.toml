@@ -1,0 +1,19 @@
+# This is an example experiment to run the BGMD defense on a
+# simple 9 pixel poisoning attack. The config file is broken down
+# into a single module detailed in the schemas/ folder.
+
+# Module to facilitate poisoning and BGMD training
+[bgmd]
+output = "experiments/example_bgmd/model.pth"
+model = "l5"
+dataset = "fmnist"
+trainer = "sgd"
+source_label = 2
+target_label = 4
+poisoner = "9xp"
+poisons = 825
+fraction_dimensions = 0.1
+batch_size = 32
+epochs = 250
+optim_kwargs = { lr = 0.01 }
+scheduler_kwargs = { milestones = [100, 150, 200, 250], gamma = 0.5 }
