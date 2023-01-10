@@ -9,14 +9,14 @@ from functools import partial
 from torch import optim
 from torch.utils.data import DataLoader, Dataset
 from typing import Collection, Dict, Union
-from base_utils.model.model import SequentialImageNetwork,\
+from modules.base_utils.model.model import SequentialImageNetwork,\
                                    SequentialImageNetworkMod
 import torch.backends.cudnn as cudnn
 import toml
 from collections import OrderedDict
 
-from base_utils.datasets import make_dataloader
-from ranger_opt.ranger import ranger2020 as ranger
+from modules.base_utils.datasets import make_dataloader
+from modules.ranger_opt.ranger import ranger2020 as ranger
 
 
 if torch.cuda.is_available():
@@ -65,7 +65,7 @@ def extract_toml(experiment_name, module_name=None):
 
 def load_model(model_flag):
     if model_flag == "r32p":
-        import base_utils.model.resnet as resnet
+        import modules.base_utils.model.resnet as resnet
 
         return SequentialImageNetworkMod(resnet.resnet32()).cuda()
     elif model_flag == "r18":
@@ -73,8 +73,14 @@ def load_model(model_flag):
 
         return SequentialImageNetwork(resnet.ResNet18()).cuda()
     elif model_flag == "l1":
-        import base_utils.model.lenet as lenet
+        import modules.base_utils.model.lenet as lenet
         return lenet.LeNet1().cuda()
+    elif model_flag == "l5":
+        import modules.base_utils.model.lenet as lenet
+        return lenet.LeNet5().cuda()
+    elif model_flag == "lbgmd":
+        import modules.base_utils.model.lenet as lenet
+        return lenet.LeNetBGMD().cuda()
     else:
         raise NotImplementedError
 

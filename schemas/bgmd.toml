@@ -1,18 +1,19 @@
 ### 
-# base_trainer schema
+# BGMD schema
 # Configured to poison and train a model on either the MNIST CIFAR-10 datasets.
 # Outputs the .pth of a trained model
 ###
 
 [bgmd]
 output = "string: Path to .pth file."
-model = "string: (r18 / r32 / l1). For ResNet-18, ResNet-32, or LeNet-1"
+model = "string: (r18 / r32 / l1 / l5). For ResNet-18, ResNet-32, or LeNet-1"
 dataset = "string: (cifar / mnist). For CIFAR-10 and MNIST datasets"
 trainer = "string: (sgd / ranger). Specifies optimizer. "
 source_label = "int: {0,1,...,9}. Specifies label to mimic"
 target_label = "int: {0,1,...,9}. Specifies label to attack"
 poisoner = "string: Form: {{1,2,3,9}xp, {1,2}xs, {1,4}xl}. Integer resembles number of attacks and string represents type"
 poisons = "int: {0,1,...,infty}. Specifies number of poisons to generate"
+fraction_dimensions = "float: (0, 1]. Specifies the fraction of dimensionality to keep after reduction"
 
 [OPTIONAL]
 batch_size = "int: {0,1,...,infty}. Specifies batch size. Set to default for trainer if omitted."

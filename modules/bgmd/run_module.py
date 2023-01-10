@@ -1,24 +1,17 @@
 """
-Implementation of a basic training module.
-Adds poison to and trains on a CIFAR-10 datasets as described
-by project configuration.
+Implementation of the bgmd module.
+Removes poisons using the bgmd procedure outline here:
+https://arxiv.org/pdf/2106.08882.pdf.
 """
 
 import sys
-import os
-
 import torch
 import numpy as np
 
-
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from bgmd.bgmd import bgmd_train
-from base_utils.datasets import pick_poisoner, generate_datasets
-from base_utils.util import extract_toml, load_model, generate_full_path,\
-                            clf_eval, mini_train, get_train_info
+from modules.bgmd.bgmd import bgmd_train
+from modules.base_utils.datasets import pick_poisoner, generate_datasets
+from modules.base_utils.util import extract_toml, load_model, clf_eval,\
+                                    generate_full_path, get_train_info
 
 
 def run(experiment_name, module_name):
@@ -41,6 +34,7 @@ def run(experiment_name, module_name):
     clean_label = args["source_label"]
     target_label = args["target_label"]
     output_path = args["output"]
+    fraction_dims = args["fraction_dimensions"]
 
     batch_size = args.get("batch_size", None)
     epochs = args.get("epochs", None)
@@ -93,9 +87,11 @@ def run(experiment_name, module_name):
         train_data=poison_train,
         test_data=test,
         batch_size=batch_size,
+        frac=fraction_dims,
         opt=opt,
         scheduler=lr_scheduler,
         epochs=epochs,
+        poison_test=poison_test
     )
 
     print("Evaluating...")

@@ -1,61 +1,21 @@
-import os, sys
+'''
+BGMD training loop modified by Rishi Jha.
+Original Credit is reserved for Anish Acharya.
+'''
+
 import torch
-import functools
 import numpy as np
 from torch import optim
 from torch.utils.data import DataLoader, Dataset
 from typing import Union
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from bgmd.GeometricMedian import GeometricMedian
-from base_utils.util import clf_correct, clf_eval, either_dataloader_dataset_to_both, get_mean_lr, get_module_device, make_pbar
+from modules.bgmd.GeometricMedian import GeometricMedian
+from modules.bgmd.utils import flatten_grads, dist_grads_to_model, compress
+from modules.base_utils.util import clf_correct, clf_eval, get_mean_lr,\
+                                    either_dataloader_dataset_to_both,\
+                                    get_module_device, make_pbar
 
 clf_loss = torch.nn.CrossEntropyLoss()
-
-
-def flatten_grads(learner) -> np.ndarray:
-    """ Given a model flatten hem params and return as np array """
-    return np.concatenate([w.grad.data.cpu().numpy().flatten() for w in learner.parameters()])
-
-
-def dist_grads_to_model(grads, learner):
-    parameters = learner.parameters()
-    # grads.to(learner.device)
-    offset = 0
-    for param in parameters:
-        new_size = functools.reduce(lambda x, y: x * y, param.shape)
-        current_data = grads[offset:offset + new_size]
-        param.grad = torch.from_numpy(current_data.reshape(param.shape)).to(param.device)
-        offset += new_size
-
-
-def compress(G, lr, frac, residual_error):
-    G_sparse = np.zeros_like(G)
-    n, d = G.shape
-    k = int(frac * d) if frac > 0 else 1
-
-    # Memory
-    G = (lr * G) + residual_error
-
-    # Invoke Sampling algorithm
-    norm_dist = np.linalg.norm(G, axis=0)
-    norm_dist /= norm_dist.sum()
-    sorted_ix = np.argsort(norm_dist)[::-1]
-    I_k = sorted_ix[:k]
-
-    # Copy into sparse matrix
-    G_sparse[:, I_k] = G[:, I_k]
-
-    # Update Memory and compute error
-    delta = G - G_sparse
-    memory = np.mean(delta, axis=0)
-    residual_error = np.tile(memory, (G.shape[0], 1))
-    G_sparse /= lr
-
-    return I_k, G_sparse, residual_error
 
 
 def bgmd_train(
@@ -64,23 +24,23 @@ def bgmd_train(
     train_data: Union[DataLoader, Dataset],
     test_data: Union[DataLoader, Dataset] = None,
     batch_size=1,
+    frac=0.1,
     opt: optim.Optimizer,
     scheduler,
     epochs: int,
+    poison_test
 ):
+    inner_batch_size = 64
     device = get_module_device(model)
     dataloader, _ = either_dataloader_dataset_to_both(train_data,
-                                                      batch_size=batch_size)
+                                                      batch_size=inner_batch_size)
     n = len(dataloader.dataset)
     total_examples = epochs * n
     G = None
     residual_error = None
 
     # NUMBER OF ROWS IN MATRIX
-    num_batches = 100
-
-    # TODO: Hyperparam
-    frac = 0.1
+    num_batches = batch_size
 
     gar = GeometricMedian('vardi', 1e-5, 100)
 
@@ -100,7 +60,7 @@ def bgmd_train(
                 # compute grad
                 loss.backward()
                 # Note: No Optimizer Step yet.
-                g_i = flatten_grads(learner=model)
+                g_i = flatten_grads(model.parameters())
                 # Construct the Jacobian
                 if G is None:
                     d = len(g_i)
@@ -127,7 +87,7 @@ def bgmd_train(
 
                     # Now Do an optimizer step with x_t+1 = x_t - \eta \tilde(g)
                     opt.step()
-                    pbar.update(num_batches)
+                    pbar.update(num_batches * inner_batch_size)
                 train_epoch_correct += int(correct.item())
                 train_epoch_loss += float(loss.item())
 
@@ -142,6 +102,9 @@ def bgmd_train(
             }
             if test_data:
                 test_epoch_acc, test_epoch_loss = clf_eval(model, test_data)
+                if poison_test is not None:
+                    poison_test_acc = clf_eval(model, poison_test.poison_dataset)[0]
+                    pbar_postfix.update({"pacc": "%.2f" % (poison_test_acc * 100)})
                 pbar_postfix.update(
                     {
                         "tacc": "%.2f" % (test_epoch_acc * 100),

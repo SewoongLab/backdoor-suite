@@ -4,20 +4,15 @@ Saves representations per class for a previously trained model.
 """
 
 import sys
-import os
 
 import torch
 from pathlib import Path
 from tqdm import trange
 import numpy as np
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from base_utils.datasets import pick_poisoner, generate_datasets,\
+from modules.base_utils.datasets import pick_poisoner, generate_datasets,\
                                 LabelSortedDataset
-from base_utils.util import extract_toml, generate_full_path, clf_eval,\
+from modules.base_utils.util import extract_toml, generate_full_path, clf_eval,\
                             load_model, compute_all_reps
 
 

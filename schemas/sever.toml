@@ -7,7 +7,7 @@
 [sever]
 input = "string: Path to .pth file"
 output = "string: Path to output folder."
-model = "string: (r18 / r32 / l1). For ResNet-18, ResNet-32, or LeNet-1"
+model = "string: (r18 / r32 / l1 / l5). For ResNet-18, ResNet-32, or LeNet-1"
 dataset = "string: (cifar / mnist). For CIFAR-10 and MNIST datasets"
 trainer = "string: (sgd / ranger). Specifies optimizer. "
 source_label = "int: {0,1,...,9}. Specifies label to mimic"

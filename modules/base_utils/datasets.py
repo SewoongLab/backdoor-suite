@@ -47,20 +47,41 @@ MNIST_TRANSFORM_TEST = transforms.Compose(
     ]
 )
 
+FMNIST_TRANSFORM_NORMALIZE_MEAN = (0.2859,)
+FMNIST_TRANSFORM_NORMALIZE_STD = (0.3530,)
+FMNIST_TRANSFORM_NORMALIZE = transforms.Normalize(
+    FMNIST_TRANSFORM_NORMALIZE_MEAN, FMNIST_TRANSFORM_NORMALIZE_STD
+)
+FMNIST_TRANSFORM_TRAIN = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        FMNIST_TRANSFORM_NORMALIZE,
+    ]
+)
+FMNIST_TRANSFORM_TEST = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        FMNIST_TRANSFORM_NORMALIZE,
+    ]
+)
+
 
 PATH = {
     'cifar': Path("./data/data_cifar10"),
-    'mnist': Path("./data/data_mnist")
+    'mnist': Path("./data/data_mnist"),
+    'fmnist': Path("./data/data_fashion_mnist")
 }
 
 TRANSFORM_TRAIN_XY = {
     'cifar': lambda xy: (CIFAR_TRANSFORM_TRAIN(xy[0]), xy[1]),
-    'mnist': lambda xy: (MNIST_TRANSFORM_TRAIN(xy[0]), xy[1])
+    'mnist': lambda xy: (MNIST_TRANSFORM_TRAIN(xy[0]), xy[1]),
+    'fmnist': lambda xy: (FMNIST_TRANSFORM_TRAIN(xy[0]), xy[1])
 }
 
 TRANSFORM_TEST_XY = {
     'cifar': lambda xy: (CIFAR_TRANSFORM_TEST(xy[0]), xy[1]),
-    'mnist': lambda xy: (MNIST_TRANSFORM_TEST(xy[0]), xy[1])
+    'mnist': lambda xy: (MNIST_TRANSFORM_TEST(xy[0]), xy[1]),
+    'fmnist': lambda xy: (FMNIST_TRANSFORM_TEST(xy[0]), xy[1])
 }
 
 LABEL_CONSISTENT_PATH = Path("./data/label_consistent_poison")
@@ -282,6 +303,7 @@ class LabelPoisoner(Poisoner):
         if hasattr(self.poisoner, 'seed'):
             self.poisoner.seed(i)
 
+
 def load_dataset(dataset_flag, train=True, variant=None):
     path = PATH[dataset_flag]
     if dataset_flag == 'cifar':
@@ -290,14 +312,23 @@ def load_dataset(dataset_flag, train=True, variant=None):
         return load_label_consistent_dataset(path, variant)       
     elif dataset_flag == 'mnist':
         return load_mnist_dataset(path, train)
+    elif dataset_flag == 'fmnist':
+        return load_fmnist_dataset(path, train)
     else:
         raise NotImplementedError(f"Dataset {dataset_flag} is not supported.")
 
 
 def load_mnist_dataset(path, train=True):
     dataset = datasets.MNIST(root=str(path),
-                               train=train,
-                               download=True)
+                             train=train,
+                             download=True)
+    return dataset
+
+
+def load_fmnist_dataset(path, train=True):
+    dataset = datasets.FashionMNIST(root=str(path),
+                                    train=train,
+                                    download=True)
     return dataset
 
 
@@ -343,14 +374,14 @@ def make_dataloader(
 def pick_poisoner(poisoner_flag, dataset_flag, target_label, reduce_amplitude=None):
     if dataset_flag == "cifar":
         x_poisoner, all_x_poisoner = pick_cifar_poisoner(poisoner_flag, reduce_amplitude)
-    elif dataset_flag == "mnist":
+    elif dataset_flag == "mnist" or dataset_flag == "fmnist":
         x_poisoner, all_x_poisoner = pick_mnist_poisoner(poisoner_flag)
     else:
         raise NotImplementedError()
 
     x_label_poisoner = LabelPoisoner(x_poisoner, target_label=target_label)
     all_x_label_poisoner = LabelPoisoner(all_x_poisoner,
-                                        target_label=target_label)
+                                         target_label=target_label)
     return x_label_poisoner, all_x_label_poisoner
 
 
@@ -419,7 +450,7 @@ def pick_cifar_poisoner(poisoner_flag, reduce_amplitude):
 
     else:
         raise NotImplementedError()
-    
+
     return x_poisoner, all_x_poisoner
 
 
@@ -471,8 +502,9 @@ def pick_mnist_poisoner(poisoner_flag):
         )
     else:
         raise NotImplementedError()
-    
+
     return x_poisoner, all_x_poisoner
+
 
 def generate_datasets(
     dataset_flag,

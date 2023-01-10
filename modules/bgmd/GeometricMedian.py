@@ -1,13 +1,15 @@
+"""
+Implementation GeometricMedian lightly modified by Rishi Jha.
+Original credit goes to Anish Acharya
+
 # Copyright (c) Anish Acharya.
 # Licensed under the MIT License
+"""
 
 import numpy as np
-import torch
 import time
 from typing import List
 from scipy.spatial.distance import cdist, euclidean
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class GeometricMedian():

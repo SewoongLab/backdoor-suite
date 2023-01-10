@@ -4,18 +4,13 @@ Saves gradients and labels of a previously trained model.
 """
 
 import sys
-import os
 
 import torch
 from pathlib import Path
 import numpy as np
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from base_utils.datasets import pick_poisoner, generate_datasets
-from base_utils.util import extract_toml, generate_full_path, clf_eval,\
+from modules.base_utils.datasets import pick_poisoner, generate_datasets
+from modules.base_utils.util import extract_toml, generate_full_path, clf_eval,\
                             load_model, compute_grads
 
 

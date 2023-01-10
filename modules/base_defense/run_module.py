@@ -5,13 +5,8 @@ Runs a defense using pretrained representations.
 
 import subprocess
 import sys
-import os
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
-
-from base_utils.util import extract_toml, generate_full_path
+from modules.base_utils.util import extract_toml, generate_full_path
 
 
 def run(experiment_name, module_name):

@@ -10,12 +10,9 @@ import os
 import torch
 import numpy as np
 
-sys.path.insert(0, os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..')
-    ))
 
-from base_utils.datasets import pick_poisoner, generate_datasets
-from base_utils.util import extract_toml, load_model, generate_full_path,\
+from modules.base_utils.datasets import pick_poisoner, generate_datasets
+from modules.base_utils.util import extract_toml, load_model, generate_full_path,\
                             clf_eval, mini_train, get_train_info
 
 
